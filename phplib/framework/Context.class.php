@@ -40,6 +40,12 @@ class Context
     private $_run_mode;
 
     /**
+     * 错误码
+     * @var
+     */
+    private $_errno = 0;
+
+    /**
      * 单例
      * @var
      */
@@ -185,4 +191,15 @@ class Context
      * @return array
      */
     public function getNoticeLogs() { return $this->_notice_logs; }
+
+    /**
+     * 设置错误码
+     * @param $errno
+     */
+    public function setErrno($errno)
+    {
+        $this->_errno = intval($errno);
+    }
+
+    public function getErrno() { return $this->_errno; }
 }

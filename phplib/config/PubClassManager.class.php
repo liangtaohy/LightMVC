@@ -45,10 +45,12 @@ class PubClassManager
                 'Context'       => PHPLIB_PATH . '/framework/Context.class.php',
                 'Controller'    => PHPLIB_PATH . '/framework/Controller.class.php',
                 'DefaultAction' => PHPLIB_PATH . '/framework/DefaultAction.class.php',
+                'SysErrors'     => PHPLIB_PATH . '/framework/SysErrors.class.php',
+                'Smarty'        => SMARTY_PATH . '/Smarty.class.php',
             );
         } else {
             if (defined('DEBUG') && DEBUG == true) {
-                echo "Please set PHPLIB_PATH first!!\n";
+                MeLog::fatal('PHPLIB_PATH must be defined!');
             }
             exit;
         }

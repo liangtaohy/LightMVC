@@ -24,11 +24,13 @@ abstract class Action
                 return $obj;
             } else {
                 // $obj不是Action的子类，打印Fatal日志
-                MeLog::fatal('ActionClass[' . $clsname . '] not instance of Action');
+                Context::getInstance()->setErrno(SysErrors::E_CLASS_NOT_ACTION);
+                MeLog::fatal('ActionClass[' . $clsname . '] not instance of Action', SysErrors::E_CLASS_NOT_ACTION);
                 return false;
             }
         } else {
-            MeLog::fatal('ActionClass[' . $clsname . '] not existed');
+            Context::getInstance()->setErrno(SysErrors::E_CLASS_NOT_FOUND);
+            MeLog::fatal('ActionClass[' . $clsname . '] not existed', SysErrors::E_CLASS_NOT_FOUND);
             return false;
         }
     }

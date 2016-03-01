@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: baidu
- * Date: 16/2/18
- * Time: 22:11
+ * Application
+ * 应用顶层类
+ * @author LiangTao (liangtaohy@163.com)
+ * @date 16/2/18 22:11
  */
 class Application
 {
@@ -26,13 +26,12 @@ class Application
             $ret = Context::getInstance()->execute();
         } catch (Exception $e) {
             trigger_error(var_export($e));
-            $log = sprintf("time[%d] method[%s] request[%s] result[%s]",
-                0,
+            $log = sprintf("method[%s] request[%s] result[%s]",
                 Context::getInstance()->getRequestMethod(),
                 json_encode(Context::getInstance()->getRequest()),
                 $e->getMessage()
             );
-            MeLog::notice($log, 0, Context::getInstance()->getNoticeLogs());
+            MeLog::notice($log, Context::getInstance()->getErrno(), Context::getInstance()->getNoticeLogs());
             return false;
         }
 
@@ -42,7 +41,7 @@ class Application
                 json_encode($ret)
             );
 
-        MeLog::notice($log, 0, Context::getInstance()->getNoticeLogs());
+        MeLog::notice($log, Context::getInstance()->getErrno(), Context::getInstance()->getNoticeLogs());
 
         return $ret;
     }

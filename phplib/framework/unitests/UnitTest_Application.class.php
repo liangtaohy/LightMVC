@@ -6,7 +6,6 @@
  */
 
 require_once(dirname(__FILE__) . '/../../phplib_headers.php');
-//require_once(dirname(__FILE__) . '/HiAction.class.php');
 
 define('DEBUG', true);
 define('PHPLIB_PATH', dirname(__FILE__) . '/../../');
@@ -36,6 +35,8 @@ class UnitTest_Application implements IBaseTest
         Controller::$config = array(
             Controller::TYPE_HASH_MAPPING => array(
                 '/test/app'     => array('TestAction'),
+                '/test/context' => array('Context'),
+                '/test/app1'   => array('TestAction1'),
             ),
             Controller::TYPE_PREFIX_MAPPING => array(
                 '/test/hi'      => array('HiAction'),
