@@ -46,6 +46,10 @@ class PubClassManager
                 'Controller'    => PHPLIB_PATH . '/framework/Controller.class.php',
                 'DefaultAction' => PHPLIB_PATH . '/framework/DefaultAction.class.php',
                 'SysErrors'     => PHPLIB_PATH . '/framework/SysErrors.class.php',
+                // db
+                'DBProxyConfig' => PHPLIB_PATH . '/db/DBProxyConfig.class.php',
+                'DBProxy'       => PHPLIB_PATH . '/db/DBProxy.class.php',
+                // smarty
                 'Smarty'        => SMARTY_PATH . '/Smarty.class.php',
             );
         } else {

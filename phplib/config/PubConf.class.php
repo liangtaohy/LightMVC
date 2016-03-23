@@ -6,10 +6,17 @@
  * @date 16/3/1 19:41
  */
 
-defined('CURRENT_TAG', 'default');
 define('SMARTY_PATH', HTDOCS_PATH .'/phpsrc/extlib/smarty/libs');
+define('PHPLIB_PATH', dirname(__FILE__) . '/../');
 
 class PubConf
 {
-
+    /**
+     * return current idc tag
+     * @return string
+     */
+    public static function currentIDC()
+    {
+        return defined('CURRENT_TAG') ? CURRENT_TAG : 'default';
+    }
 }

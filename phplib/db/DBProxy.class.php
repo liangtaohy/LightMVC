@@ -7,9 +7,26 @@
  */
 class DBProxy
 {
+    /**
+     * 数据库句柄
+     * @var
+     */
     private $_handle;
+    /**
+     * 当前使用的配置
+     * @var
+     */
     private $_config;
-
+    /**
+     * 当前负载均衡指向的机器索引
+     * @var
+     */
+    private $_index;
+    /**
+     * 实例缓存
+     * 一个db对应一个实例
+     * @var array
+     */
     private static $instances = array();
 
     /**
@@ -24,22 +41,25 @@ class DBProxy
         $dbProxy = new self();
         $user = DBProxyConfig::$arrDBMap[$database]['user'];
         $password = DBProxyConfig::$arrDBMap[$database]['password'];
+        $charset = DBProxyConfig::$arrDBMap[$database]['charset'];
+        $connect_timeout = intval(DBProxyConfig::$arrDBMap[$database]['connect_timeout']);
+        $autocommit = isset(DBProxyConfig::$arrDBMap[$database]['autocommit']) ? intval(DBProxyConfig::$arrDBMap[$database]['autocommit']) : 0;
         $current_tag = defined('CURRENT_TAG') ? CURRENT_TAG : 'default';
         $machines = DBProxyConfig::$arrDBMap[$database][$current_tag];
 
         // 选择机器 - 负载均衡
-        $index = self::selectMachineByTime($machines);
+        $index = self::selectMachineByTime(is_array($machines) ? $machines : array());
         if ($index === false) {
             MeLog::fatal('dbproxy[instance] dbname[' . $database . '] reason[no_config]');
             return false;
         }
 
+        $dbProxy->_index = $index;
+
         $host = $machines[$index]['host'];
         $port = $machines[$index]['port'];
-        $charset = $machines[$index]['charset'];
-        $connect_timeout = $machines[$index]['connect_timeout'];
 
-        $dbProxy->init($host, $port, $user, $password, $database, $connect_timeout, $charset);
+        $dbProxy->init($host, $port, $user, $password, $database, $connect_timeout, $charset, $autocommit);
         if ($dbProxy->connect() !== SysErrors::E_SUCCESS) {
             return false;
         }
@@ -73,7 +93,7 @@ class DBProxy
      * @param int $connect_timeout
      * @param string $charset
      */
-    protected function init($host, $port, $user, $password, $dbname, $connect_timeout = 0, $charset = 'utf8')
+    protected function init($host, $port, $user, $password, $dbname, $connect_timeout = 0, $charset = 'utf8', $autocommit = 0)
     {
         $this->_config = array(
             'host'              => $host,
@@ -83,7 +103,53 @@ class DBProxy
             'dbname'            => $dbname,
             'connect_timeout'   => $connect_timeout,
             'charset'           => $charset,
+            'autocommit'        => $autocommit,
         );
+    }
+
+    /**
+     * ip
+     * @return string
+     */
+    public function host()
+    {
+        return $this->_config['host'];
+    }
+
+    /**
+     * 端口号
+     * @return int
+     */
+    public function port()
+    {
+        return $this->_config['port'];
+    }
+
+    /**
+     * 编码
+     * @return string
+     */
+    public function charset()
+    {
+        return $this->_config['charset'];
+    }
+
+    /**
+     * 数据库名
+     * @return string
+     */
+    public function dbname()
+    {
+        return $this->_config['dbname'];
+    }
+
+    /**
+     * connect超时时间
+     * @return int
+     */
+    public function connecttimeout()
+    {
+        return $this->_config['connect_timeout'];
     }
 
     /**
@@ -102,7 +168,7 @@ class DBProxy
     public function connect()
     {
         $config = $this->_config;
-        if (is_array($config) && !empty($config)) {
+        if (is_array($config) && empty($config)) {
             MeLog::fatal('config is needed!!', SysErrors::E_DB_CONFIG_INVALID);
             return SysErrors::E_DB_CONFIG_INVALID;
         }
@@ -125,7 +191,7 @@ class DBProxy
         }
 
         if ($mysqli->real_connect($this->_config['host'], $this->_config['user'], $this->_config['password'], $this->_config['dbname'], $this->_config['port']) === false) {
-            MeLog::fatal('connect[' . $this->_config['dbname'] . '] config[' . json_encode($this->_config) . ']', SysErrors::E_DB_CONNECT_FAILED);
+            MeLog::fatal('connect[' . $this->_config['dbname'] . '] config[' . json_encode($this->_config) . '] errmsg[' . mysqli_connect_error() . ']', SysErrors::E_DB_CONNECT_FAILED);
             return SysErrors::E_DB_CONNECT_FAILED;
         }
 
@@ -139,6 +205,9 @@ class DBProxy
     {
         if (!empty($this->_handle)) {
             $this->_handle->close();
+            unset(self::$instances[$this->_config['dbname']]);
+            $this->_config = array();
+            $this->_handle = null;
         }
     }
 
@@ -149,7 +218,8 @@ class DBProxy
      */
     public function selectDB($dbname)
     {
-        if (is_string($dbname) && !empty(trim($dbname))) {
+        if (is_string($dbname) && !empty($dbname)) {
+            $this->_config['dbname'] = $dbname;
             return $this->_handle->select_db($dbname);
         }
 
@@ -165,7 +235,7 @@ class DBProxy
      */
     public function setCharset($charset = 'utf8')
     {
-        if (!$this->_handle || !is_string($charset) || empty(trim($charset))) {
+        if (!$this->_handle || !is_string($charset) || empty($charset)) {
             MeLog::fatal('mysql[set_charset] expected[' . $charset . '] result[failed]', SysErrors::E_DB_PARAM_INVALID);
             return false;
         }
@@ -174,9 +244,37 @@ class DBProxy
             MeLog::fatal('mysql[set_charset] expected[' . $charset . '] result[failed]', SysErrors::E_DB_CHARSET_FAILED);
             return false;
         }
+        $this->_config['charset'] = $charset;
         return true;
     }
 
+    /**
+     * 执行sql
+     * 要使用些方法，需要定义QUERY_ENABLE常量，值为true；否则，该方法不可用
+     * @param $sql
+     * @return bool
+     */
+    public function query($sql)
+    {
+        if (!defined('QUERY_ENABLE') || QUERY_ENABLE === false) {
+            MeLog::fatal('mysql[query] expected[mysqli_result] result[disabled]', SysErrors::E_DB_PARAM_INVALID);
+            return false;
+        }
+
+        if (!$this->_handle || !is_string($sql) || empty($sql)) {
+            MeLog::fatal('mysql[query] expected[mysqli_result] result[failed]', SysErrors::E_DB_PARAM_INVALID);
+            return false;
+        }
+
+        $res = $this->_handle->query($sql);
+
+        if (!$res) {
+            MeLog::fatal('mysql[query] expected[mysqli_result] result[failed] sql[' . $sql . ']', SysErrors::E_DB_SELECT_ERROR);
+            return false;
+        }
+
+        return $res;
+    }
     /**
      * 查询数据
      * @note 只能是select语句，不可以是其他语句
@@ -185,7 +283,7 @@ class DBProxy
      */
     public function select($sql)
     {
-        if (!$this->_handle || !is_string($sql) || empty(trim($sql))) {
+        if (!$this->_handle || !is_string($sql) || empty($sql)) {
             MeLog::fatal('mysql[select] expected[mysqli_result] result[failed]', SysErrors::E_DB_PARAM_INVALID);
             return false;
         }
@@ -212,6 +310,30 @@ class DBProxy
     }
 
     /**
+     * Perform a select query on the database and retriev the first row in results
+     * @param string $strSql	The query string
+     * @return bool|array	Return result row on success or false on failure
+     */
+    public function queryFirstRow($strSql)
+    {
+        if (!$this->mysqli) {
+            return false;
+        }
+
+        $this->lastSql = $strSql;
+        $objRes = $this->mysqli->query($this->lastSql);
+        if (!$objRes) {
+            return false;
+        }
+
+        $arrResult = $objRes->fetch_assoc();
+        if ($arrResult) {
+            return $arrResult;
+        }
+        return false;
+    }
+
+    /**
      * 插入一条数据
      * @param array $arrValue
      * @param $table
@@ -220,7 +342,7 @@ class DBProxy
      */
     public function insert(array $arrValue = array(), $table, $ignore_unique = false)
     {
-        if (!$this->_handle || !is_string($table) || empty($arrValue) || empty(trim($table))) {
+        if (!$this->_handle || !is_string($table) || empty($arrValue) || empty($table)) {
             MeLog::fatal('mysql[insert] expected[true] result[false] reason[param_needed]', SysErrors::E_DB_PARAM_INVALID);
             return false;
         }
@@ -233,8 +355,8 @@ class DBProxy
 
         foreach ($arrValue as $field => $v) {
             if ($first === false) {
-                $fields = ',';
-                $values = ',';
+                $fields .= ',';
+                $values .= ',';
             }
 
             $first = false;
@@ -260,15 +382,23 @@ class DBProxy
 
     /**
      * 删除记录
-     * @param $sql
+     * $param $tables string 逗号分隔
+     * @param $where string where条件
      * @return bool 成功时，返回true; 失败时，返回false
      */
-    public function delete($sql)
+    public function delete($tables, $where = '')
     {
-        if (!$this->_handle || !is_string($sql) || empty(trim($sql))) {
-            MeLog::fatal('mysql[delete] expected[true] result[false] sql[' . $sql . ']', SysErrors::E_DB_PARAM_INVALID);
-            return false;
+        if (!is_string($tables) || empty($tables)) {
+            MeLog::fatal('mysql[delete] expected[true] result[false] sql[' . $tables . ']', SysErrors::E_DB_PARAM_INVALID);
         }
+
+        $tables = trim($tables);
+
+        if (empty($where) || !is_string($where)) {
+            $where = '1';
+        }
+
+        $sql = "DELETE FROM " . $tables . ' WHERE ' . $where;
 
         if (!$this->_handle->query($sql)) {
             MeLog::fatal('mysql[delete] expected[true] result[false] sql[' . $sql . ']', SysErrors::E_DB_UPDATE_ERROR);
@@ -285,7 +415,7 @@ class DBProxy
      */
     public function update($sql)
     {
-        if (!$this->_handle || !is_string($sql) || empty(trim($sql))) {
+        if (!$this->_handle || !is_string($sql) || empty($sql)) {
             MeLog::fatal('mysql[update] expected[true] result[false] sql[' . $sql . ']', SysErrors::E_DB_PARAM_INVALID);
             return false;
         }
@@ -294,6 +424,36 @@ class DBProxy
             MeLog::fatal('mysql[update] expected[true] result[false] sql[' . $sql . ']', SysErrors::E_DB_UPDATE_ERROR);
             return false;
         }
+
+        return true;
+    }
+
+    /**
+     * Do multiple sql queries as a transaction
+     *
+     * @param array $arrSql	Array of sql queries to be executed
+     * @return bool Returns true on success or false on failure
+     */
+    public function doTransaction(array $arrSql)
+    {
+        if (!$this->mysqli) {
+            return false;
+        }
+
+        $this->mysqli->autocommit(false);
+
+        foreach ($arrSql as $strSql) {
+            $ret = $this->mysqli->query($strSql);
+            if (!$ret) {
+                $this->lastSql = $strSql;
+                $this->mysqli->rollback();
+                $this->mysqli->autocommit(true);
+                return false;
+            }
+        }
+
+        $this->mysqli->commit();
+        $this->mysqli->autocommit(true);
 
         return true;
     }
@@ -313,6 +473,15 @@ class DBProxy
     }
 
     /**
+     * Get the last inserted data's autoincrement id
+     * @return int
+     */
+    public function getLastInsertID()
+    {
+        return mysqli_insert_id($this->mysqli);
+    }
+
+    /**
      * 获取错误码
      * @return int
      */
@@ -323,5 +492,121 @@ class DBProxy
         } else {
             return $this->_handle->errno;
         }
+    }
+
+    /**
+     * Return a safe SQL string according to the format and its arguments
+     * Usage example:
+     * <code>
+     * $format = 'SELECT * FROM table WHERE age=%d and fav=%s';
+     * $sql = $dbproxy->buildSqlStr($format, $age, $fav);
+     * $res = $dbproxy->doSelectQuery($sql);
+     * </code>
+     * @param string $format	Template of SQL string
+     * @return string	Safe SQL query string
+     */
+    public function buildSqlStr($format)
+    {
+        $argv = func_get_args();
+        $argc = count($argv);
+
+        $sql_params = array();
+
+        if ($argc > 1) {
+            if (!self::typeCheckVprintf($format, $argv, 1)) {
+                return false;
+            }
+            for ($x = 1; $x < $argc; $x++) {
+                if (is_string($argv[$x])) {
+                    $sql_str = $argv[$x];
+                    $sql_str = $this->realEscapeString($sql_str);
+                    if ($sql_str === false) {
+                        return false;
+                    }
+                    $sql_params[] = '\'' . $sql_str . '\'';
+                } elseif (is_scalar($argv[$x])) {	// check for int/float/bool
+                    // don't do anything to int types, they are safe
+                    $sql_params[] = $argv[$x];
+                } else {	// unsupported type (array, object, resource, null)
+                    return false;
+                }
+            }
+            $sql = vsprintf($format, $sql_params);
+        } else {
+            $sql = str_replace('%%', '%', $format);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Build SQL query string for Insert operation
+     *
+     * @param array $arrFields	Data to be inserted in key/value array format
+     * @param string $table		Table name
+     * @return string	Safe SQL query string
+     */
+    public function buildInsertSqlStr(array $arrFields, $table)
+    {
+        if (!$this->mysqli || count($arrFields) <= 0) {
+            return false;
+        }
+
+        $strSql = 'INSERT INTO ' . $table . ' (';
+        $strValues = '';
+        $needComma = false;
+        foreach ($arrFields as $field => $value) {
+            if ($needComma) {
+                $strSql .= ',';
+                $strValues .= ',';
+            }
+            $needComma = true;
+            $strSql .= '`' . $field. '`';
+            if (is_string($value)) {
+                $strValues .= "'" . mysqli_real_escape_string($this->mysqli, $value) . "'";
+            } elseif (is_array($value) || is_object($value) || is_null($value)) {
+                continue;
+            } else {
+                $strValues .= "'$value'";
+            }
+        }
+        $strSql .= ') VALUES (' . $strValues . ')';
+
+        return $strSql;
+    }
+
+    /**
+     * Build SQL query string <b>without WHERE condition</b> for update operation,
+     * callers should add <code>WHERE</code> condition part them self.
+     *
+     * @param array $arrFields	Data to be update in key/value array format
+     * @param string $table		Table name
+     * @return string	Safe SQL query string
+     */
+    public function buildUpdateSqlStr(array $arrFields, $table)
+    {
+        if (!$this->mysqli || count($arrFields) <= 0) {
+            return false;
+        }
+
+        $strSql = 'UPDATE ' . $table . ' SET ';
+        $needComma = false;
+        foreach ($arrFields as $field => $value) {
+            if ($needComma) {
+                $strSql .= ',';
+            }
+            $needComma = true;
+            $strSql .= '`' . $field. '`=';
+            if (is_string($value)) {
+                $strSql .= "'" . mysqli_real_escape_string($this->mysqli, $value) . "'";
+            } elseif (is_array($value) || is_object($value) || is_null($value)) {
+                continue;
+            } else {
+                $strSql .= "'$value'";
+            }
+        }
+        $strSql .= ' ';
+
+        return $strSql;
     }
 }

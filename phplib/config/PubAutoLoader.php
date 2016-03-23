@@ -13,6 +13,7 @@
  * @date 16/2/18 17:21
  */
 require_once(dirname(__FILE__) . "/PubClassManager.class.php");
+require_once(dirname(__FILE__) . "/PubConf.class.php");
 
 function _pub_auto_loader($clssname)
 {
