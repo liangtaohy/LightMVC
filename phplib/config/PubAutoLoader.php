@@ -39,4 +39,4 @@ function _pub_auto_loader($clssname)
     }
 }
 
-spl_autoload_register(_pub_auto_loader);
+spl_autoload_register('_pub_auto_loader');
