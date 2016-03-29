@@ -6,7 +6,6 @@
  * @date 16/3/1 19:41
  */
 
-#define('SMARTY_PATH', HTDOCS_PATH .'/extlib/smarty/libs');
 define('PHPLIB_PATH', dirname(__FILE__) . '/../');
 
 class PubConf
