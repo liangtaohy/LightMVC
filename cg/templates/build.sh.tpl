@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRO_DIR="phpsrc/{{APP_NAME}}"
+PRO_DIR="phpsrc/app/{{APP_NAME}}"
 CONF_DIR="phpsrc/conf/{{APP_NAME}}"
 PRO_FILE="{{APP_NAME}}.tar.gz"
 TPL_DIR="templates/templates/{{APP_NAME}}/site/template"
