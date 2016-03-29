@@ -1,15 +1,12 @@
 #!/bin/bash
 
-DIR=`pwd`.'/../../'
 #never forget to dos2unix
 
 #where installed
-NGINX_HOME=$DIR/webserver
+NGINX_HOME=$DIR
 
 #nginx bin
 NGINX_BIN="$NGINX_HOME/sbin/nginx"
-
-/etc/rc.d/init.d/functions
 
 start()
 {
