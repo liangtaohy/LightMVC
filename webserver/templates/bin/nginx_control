@@ -1,0 +1,93 @@
+#!/bin/bash
+
+DIR=`pwd`.'/../../'
+#never forget to dos2unix
+
+#where installed
+NGINX_HOME=$DIR/webserver
+
+#nginx bin
+NGINX_BIN="$NGINX_HOME/sbin/nginx"
+
+/etc/rc.d/init.d/functions
+
+start()
+{
+	local rv=1
+
+	echo -e $"Starting nginx:\n"
+
+	nohup limit -n 65536 $NGINX_BIN > /dev/null 2>&1 &
+	rv=$?
+
+	if [ $rv -eq 0 ]
+	then
+		echo "OK"
+	else
+		echo "failed"
+	fi
+
+	return $rv
+}
+
+stop()
+{
+	local rv=1
+
+	echo -e $"Stopping nginx...\n"
+
+	$NGINX_BIN -s stop
+	rv=$?
+
+	if [ $rv -eq 0 ]
+	then
+		echo -e $"Stop OK, please check it yourself\n"
+	else
+		echo -e $"Stop failed\n"
+	fi
+}
+
+restart()
+{
+	stop
+	sleep 2
+	start
+}
+
+reload()
+{
+	local rv=1
+
+	$NGINX_BIN -s reload
+	rv=$?
+
+	if [ $rv -eq 0 ]
+	then
+		echo -e $"Reload OK, please check it yourself\n"
+	else
+		echo -e $"Reload failed\n"
+	fi
+}
+
+case "$1" in
+	"start" )
+		start
+		;;
+	"stop" )
+		stop
+		;;
+	"restart" )
+		restart
+		;;
+	"reload" )
+		reload
+		;;
+	#test configuration and exit
+	"test" )
+		$NGINX_BIN -t
+		;;
+	* )
+		echo -e "Usage: $0 [start|stop|restart|reload|test]\n"
+		echo $NGINX_BIN
+		exit 1
+esac
