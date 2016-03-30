@@ -12,7 +12,7 @@ abstract class Action
      * @param $clsname
      * @return mixed 失败，返回false
      */
-    public static function getDelegateAction($clsname)
+    public static function getDelegateAction($context, $clsname)
     {
         if (is_string($clsname)
             && preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/i', $clsname) && class_exists($clsname, true)) {
@@ -20,7 +20,7 @@ abstract class Action
             $obj = new $clsname;
 
             if ($obj instanceof Action) {
-                $obj->init();
+                $obj->init($context);
                 return $obj;
             } else {
                 // $obj不是Action的子类，打印Fatal日志

@@ -165,7 +165,7 @@ class Context
      */
     protected function invokeAction($params)
     {
-        $action = Action::getDelegateAction($params[0]);
+        $action = Action::getDelegateAction($this, $params[0]);
 
         if ($action !== false) {
             return $action->execute($this, isset($params[1]) ? $params[1] : array());
