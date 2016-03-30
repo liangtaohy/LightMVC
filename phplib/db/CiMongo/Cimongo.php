@@ -26,7 +26,14 @@ class Cimongo extends Cimongo_extras {
 
         private $_inserted_id = FALSE;
         public $debug = FALSE;
-
+        static $inst;
+        public static function getInstance()
+        {
+            if (!self::$inst) {
+                self::$inst = new self();
+            }
+            return self::$inst;
+        }
         /**
          * Construct a new Cimongo
          *

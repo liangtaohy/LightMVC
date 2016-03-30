@@ -20,9 +20,8 @@
  * @since v1.0.0
  *
  */
-
+require_once(dirname(__FILE__) . 'CimongoConfig.class.php');
 class Cimongo_base {
-
 	# del: protected $CI;
 
 	protected $connection;
@@ -143,8 +142,8 @@ class Cimongo_base {
 	 */
 	private function connection_string(){
         # todo: 需要改造
-        $cimongo = include_once __DIR__ . '/../../config/database.php';
-        $config = $cimongo['mongo']['default'];
+        $config = CimongoConfig::$conf['mongo'][CURRENT_TAG];
+
         $this->host = $config['host'];
         $this->port = $config['port'];
         $this->user = $config['user'];
