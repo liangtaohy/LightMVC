@@ -14,7 +14,7 @@ define('APP_CONF_PATH', APP_PATH . '/../conf/' . APP_NAME);
 
 date_default_timezone_set('Asia/Shanghai');
 
-require_once(APP_PATH . '/../../phplib/phplib_headers.php');
+require_once(APP_PATH . '/../../../phplib/phplib_headers.php');
 require_once(APP_PATH . '/controller/uri_dispatch_rules.php');
 
 /** We will use autoloader instead of include path. */
@@ -31,5 +31,5 @@ ini_set('include_path', ini_get('include_path') . ':' . $appIncludePath);
 //日志打印相关参数定义
 $GLOBALS['LOG'] = array(
     'log_level' => MeLog::LOG_LEVEL_ALL,
-    'log_file'  => DEPLOY_ROOT . '/logs/{{APP_NAME}}.log',
+    'log_file'  => DEPLOY_ROOT . 'logs/{{APP_NAME}}.log',
 );
