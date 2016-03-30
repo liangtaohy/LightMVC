@@ -190,6 +190,9 @@ class MeLog
                         isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
                         $intTimeUsed, $strArgs, $str);
 
+        $path = substr($log_file, 0, strrpos($log_file, '/'));
+        @mkdir($path, 0777, true);
+
         return file_put_contents($log_file, $str, FILE_APPEND);
     }
 
