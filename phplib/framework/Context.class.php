@@ -13,6 +13,8 @@ class Context
      */
     private $_request;
 
+    private $_response;
+
     /**
      * 用户notice日志数组，用户的notice日志均应该放在这里
      * @var
@@ -95,6 +97,8 @@ class Context
         }
 
         $this->_request = array();
+
+        $this->_response = array();
 
         $query_str = isset($urlObj['query']) ? $urlObj['query'] : '';
 
@@ -202,4 +206,10 @@ class Context
     }
 
     public function getErrno() { return $this->_errno; }
+
+    public function addResult($key, $v) {
+        $this->_response[$key] = $v;
+    }
+
+    public function getResponse() { return $this->_response; }
 }

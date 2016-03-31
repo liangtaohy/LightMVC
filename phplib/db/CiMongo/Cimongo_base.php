@@ -20,7 +20,7 @@
  * @since v1.0.0
  *
  */
-require_once(dirname(__FILE__) . 'CimongoConfig.class.php');
+require_once(DEPLOY_ROOT . '/conf/CimongoConfig.class.php');
 class Cimongo_base {
 	# del: protected $CI;
 
@@ -126,8 +126,14 @@ class Cimongo_base {
 	 */
 	private function connect(){
 		$options = array();
-		try{
-			$this->connection = new MongoClient($this->connection_string, $options);
+        $class = 'MongoClient';
+        if(!class_exists($class)){
+
+            $class = 'Mongo';
+
+        }
+        try{
+			$this->connection = new $class($this->connection_string, $options);
 			$this->db = $this->connection->{$this->dbname};
 			return $this;
 		}catch (MongoConnectionException $e){

@@ -8,6 +8,23 @@
 class Utils
 {
     /**
+     * mongo object id
+     * @return string
+     */
+    public static function getObjectId()
+    {
+        return (string)new MongoId();
+    }
+    /**
+     * get micro time
+     * @return int
+     */
+    public static function microTime() {
+        $temp = explode(" ", microtime());
+        return intval(bcadd($temp[0], $temp[1], 6) * 1000);
+    }
+
+    /**
      * try to get a real client ip
      * @return string
      */

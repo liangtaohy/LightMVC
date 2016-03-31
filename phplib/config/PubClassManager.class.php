@@ -51,6 +51,7 @@ class PubClassManager
                 'DBProxy'       => PHPLIB_PATH . '/db/DBProxy.class.php',
                 // smarty
                 'Smarty'        => SMARTY_PATH . '/Smarty.class.php',
+                'BaseAction'    => PHPLIB_PATH . '/common/actions/BaseAction.class.php',
             );
         } else {
             if (defined('DEBUG') && DEBUG == true) {

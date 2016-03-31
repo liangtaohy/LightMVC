@@ -22,11 +22,14 @@ class Application
     public static function start()
     {
         MeLog::debug('app is running...');
+        $start = Utils::microTime();
         try {
             $ret = Context::getInstance()->execute();
         } catch (Exception $e) {
             trigger_error(var_export($e));
-            $log = sprintf("method[%s] request[%s] result[%s]",
+            $end = Utils::microTime();
+            $log = sprintf("time[%d] method[%s] request[%s] result[%s]",
+                $end - $start,
                 Context::getInstance()->getRequestMethod(),
                 json_encode(Context::getInstance()->getRequest()),
                 $e->getMessage()
@@ -34,8 +37,9 @@ class Application
             MeLog::notice($log, Context::getInstance()->getErrno(), Context::getInstance()->getNoticeLogs());
             return false;
         }
-
-        $log = sprintf("method[%s] request[%s] result[%s]",
+        $end = Utils::microTime();
+        $log = sprintf("time[%d] method[%s] request[%s] result[%s]",
+                $end - $start,
                 Context::getInstance()->getRequestMethod(),
                 json_encode(Context::getInstance()->getRequest()),
                 json_encode($ret)

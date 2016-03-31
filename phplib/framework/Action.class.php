@@ -46,5 +46,8 @@ abstract class Action
      * @param $context
      * @return mixed
      */
-    abstract public function execute($context, $action_params = array());
+    public function execute($context, $action_params = array())
+    {
+        //
+    }
 }

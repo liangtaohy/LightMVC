@@ -26,7 +26,7 @@ class Cimongo extends Cimongo_extras {
 
         private $_inserted_id = FALSE;
         public $debug = FALSE;
-        static $inst;
+        private static $inst;
         public static function getInstance()
         {
             if (!self::$inst) {

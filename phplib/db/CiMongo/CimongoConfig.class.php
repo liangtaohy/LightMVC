@@ -9,7 +9,7 @@
 class CimongoConfig
 {
     // This should be override by Application's conf
-    public static $conf = [
+    public static $conf = array();/*[
         'mongo' => [
             'default'   => [
                 'host'          => 'test.ydl.com',
@@ -21,5 +21,5 @@ class CimongoConfig
                 'db_flag'       => TRUE,
             ],
         ],
-    ];
+    ];*/
 }
