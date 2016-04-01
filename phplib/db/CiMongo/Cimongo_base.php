@@ -20,7 +20,7 @@
  * @since v1.0.0
  *
  */
-require_once(DEPLOY_ROOT . '/conf/CimongoConfig.class.php');
+require_once(APP_CONF_PATH . '/CimongoConfig.class.php');
 class Cimongo_base {
 	# del: protected $CI;
 
