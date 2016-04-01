@@ -211,5 +211,12 @@ class Context
         $this->_response[$key] = $v;
     }
 
+    public function addResults($results = array())
+    {
+        $this->_response = array_merge($this->_response, $results);
+    }
+
+    public function setResponse(array $res = array()) { $this->_response = $res; }
+
     public function getResponse() { return $this->_response; }
 }

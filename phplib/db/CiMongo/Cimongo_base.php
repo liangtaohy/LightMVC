@@ -20,7 +20,7 @@
  * @since v1.0.0
  *
  */
-require_once(DEPLOY_ROOT . '/conf/CimongoConfig.class.php');
+require_once(DEPLOY_ROOT . '/phpsrc/conf/CimongoConfig.class.php');
 class Cimongo_base {
 	# del: protected $CI;
 
@@ -152,10 +152,10 @@ class Cimongo_base {
 
         $this->host = $config['host'];
         $this->port = $config['port'];
-        $this->user = $config['user'];
-        $this->pass = $config['password'];
+        $this->user = isset($config['user']) ? $config['user'] : '';
+        $this->pass = isset($config['password']) ? $config['password'] : '';
         $this->dbname = $config['dbname'];
-        $this->query_safety = $config['query_safety'];
+        $this->query_safety = isset($config['query_safety']) ? $config['query_safety'] : '';
         $dbhostflag = (bool) $config['db_flag'];
 
 		$connection_string = "mongodb://";
