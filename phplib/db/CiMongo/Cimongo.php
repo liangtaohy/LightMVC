@@ -103,7 +103,7 @@ class Cimongo extends Cimongo_extras
      *
      * @since v1.0.0
      */
-    public function select($includes = array())
+    public function select($includes = array(), $hasid = false)
     {
         if (!is_array($includes)) {
             $includes = array();
@@ -113,6 +113,9 @@ class Cimongo extends Cimongo_extras
                 $this->selects[$col] = TRUE;
             }
         }
+
+        $this->selects['_id'] = $hasid;
+
         return $this;
     }
 
