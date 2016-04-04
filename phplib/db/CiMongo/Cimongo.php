@@ -405,6 +405,20 @@ class Cimongo extends Cimongo_extras
     }
 
     /**
+     * set update fields
+     * @usage: $this->cimongo->where(array('blog_id'=>123))->set_updates(array('$pull'=>["name":"test"]))->update('users')
+     * @param array $updates
+     * @return $this
+     */
+    public function set_updates($updates = array())
+    {
+        if (is_array($updates)) {
+            $this->updates = $updates;
+        }
+        return $this;
+    }
+
+    /**
      *
      * Sets a field to a value
      *
@@ -442,7 +456,6 @@ class Cimongo extends Cimongo_extras
         }
         try {
             $options = array_merge(array("w" => $this->query_safety, 'multiple' => FALSE), $options);
-
             $this->db->selectCollection($collection)->update($this->wheres, $this->updates, $options);
             $this->_clear();
             return TRUE;
