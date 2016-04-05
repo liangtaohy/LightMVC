@@ -103,14 +103,21 @@ class Cimongo extends Cimongo_extras
      *
      * @since v1.0.0
      */
-    public function select($includes = array(), $hasid = false)
+    public function select($includes = array(), $hasid = false, $excludes = array())
     {
         if (!is_array($includes)) {
             $includes = array();
         }
+
         if (!empty($includes)) {
             foreach ($includes as $col) {
                 $this->selects[$col] = TRUE;
+            }
+        }
+
+        if (!empty($excludes)) {
+            foreach ($excludes as $col) {
+                $this->selects[$col] = false;
             }
         }
 
