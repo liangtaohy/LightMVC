@@ -52,6 +52,8 @@ class PubClassManager
                 // smarty
                 'Smarty'        => SMARTY_PATH . '/Smarty.class.php',
                 'BaseAction'    => PHPLIB_PATH . '/common/actions/BaseAction.class.php',
+                'bdHttpRequest' => PHPLIB_PATH . '/bdHttp/bdHttpRequest.class.php',
+                'bdURL'         => PHPLIB_PATH . '/bdHttp/bdURL.class.php',
             );
         } else {
             if (defined('DEBUG') && DEBUG == true) {
