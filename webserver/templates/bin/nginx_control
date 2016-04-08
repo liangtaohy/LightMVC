@@ -3,10 +3,10 @@
 #never forget to dos2unix
 
 #where installed
-NGINX_HOME=$DIR
+NGINX_HOME="./"
 
 #nginx bin
-NGINX_BIN="$NGINX_HOME/sbin/nginx"
+NGINX_BIN="./sbin/nginx"
 
 start()
 {
@@ -14,7 +14,7 @@ start()
 
 	echo -e $"Starting nginx:\n"
 
-	nohup limit -n 65536 $NGINX_BIN > /dev/null 2>&1 &
+	nohup limit -n 65536 $NGINX_BIN 2>&1 &
 	rv=$?
 
 	if [ $rv -eq 0 ]

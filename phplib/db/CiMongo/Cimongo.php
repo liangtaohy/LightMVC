@@ -56,6 +56,11 @@ class Cimongo extends Cimongo_extras
 
     }
 
+    public function db()
+    {
+        return $this->db;
+    }
+    
     /**
      * Get the documents based upon the passed parameters
      *
@@ -67,6 +72,7 @@ class Cimongo extends Cimongo_extras
             //FIXME theow exception instead show error
             show_error("In order to retreive documents from MongoDB, a collection name must be passed", 500);
         }
+        //echo (sprintf("col[%s] wheres[%s] selects[%s]", $collection, json_encode($this->wheres), json_encode($this->selects)));
         $cursor = $this->db->selectCollection($collection)->find($this->wheres, $this->selects);
         $cimongo_cursor = new Cimongo_cursor($cursor);
 
@@ -463,9 +469,9 @@ class Cimongo extends Cimongo_extras
         }
         try {
             $options = array_merge(array("w" => $this->query_safety, 'multiple' => FALSE), $options);
-            $this->db->selectCollection($collection)->update($this->wheres, $this->updates, $options);
+            $rs = $this->db->selectCollection($collection)->update($this->wheres, $this->updates, $options);
             $this->_clear();
-            return TRUE;
+            return $rs;
         } catch (MongoCursorException $e) {
             show_error("Update of data into MongoDB failed: {$e->getMessage()}", 500);
         } catch (MongoCursorException $e) {

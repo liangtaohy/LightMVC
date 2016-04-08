@@ -9,6 +9,13 @@
 class BaseAction extends Action
 {
     /**
+     * Whether we are under debug mode or not.
+     *
+     * @var bool
+     */
+    protected $is_debug = false;
+
+    /**
      * 获取请求参数
      *
      * @return array
@@ -65,7 +72,9 @@ class BaseAction extends Action
      */
     public function init($context)
     {
-        //
+        if (defined('IS_DEBUG') && IS_DEBUG) {
+            $this->is_debug = true;
+        }
     }
 
     protected function isApi()
