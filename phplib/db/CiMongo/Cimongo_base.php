@@ -20,7 +20,7 @@
  * @since v1.0.0
  *
  */
-require_once(DEPLOY_ROOT . '/phpsrc/conf/CimongoConfig.class.php');
+require_once(DEPLOY_ROOT . '/phpsrc/conf/' . APP_NAME . '/CimongoConfig.class.php');
 class Cimongo_base {
 	# del: protected $CI;
 
@@ -250,9 +250,11 @@ class Cimongo_base {
  *
  * @param $str
  * @param $code
+ * @throws Exception
  */
 function show_error($str, $code)
 {
-    var_dump($str, $code);
+    MeLog::warning($str, $code);
+    throw new Exception($str, $code);
 }
 
