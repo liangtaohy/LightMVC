@@ -26,7 +26,7 @@ class Application
         try {
             $ret = Context::getInstance()->execute();
         } catch (Exception $e) {
-            trigger_error(var_export($e));
+            #trigger_error(var_export($e));
             $end = Utils::microTime();
             $log = sprintf("time[%d] method[%s] request[%s] result[%s]",
                 $end - $start,
