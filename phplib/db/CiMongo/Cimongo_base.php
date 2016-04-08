@@ -20,7 +20,7 @@
  * @since v1.0.0
  *
  */
-require_once(DEPLOY_ROOT . '/phpsrc/conf/' . APP_NAME . '/CimongoConfig.class.php');
+require_once(DEPLOY_ROOT . '/phpsrc/conf/CimongoConfig.class.php');
 class Cimongo_base {
 	# del: protected $CI;
 
@@ -148,7 +148,7 @@ class Cimongo_base {
 	 */
 	private function connection_string(){
         # todo: 需要改造
-        $config = CimongoConfig::$conf['mongo'][CURRENT_TAG];
+        $config = CimongoConfig::$conf['mongo'][APP_NAME][CURRENT_TAG];
 
         $this->host = $config['host'];
         $this->port = $config['port'];
