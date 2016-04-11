@@ -34,7 +34,7 @@ class Application
                 json_encode(Context::getInstance()->getRequest()),
                 $e->getMessage()
             );
-            MeLog::notice($log, Context::getInstance()->getErrno(), Context::getInstance()->getNoticeLogs());
+            MeLog::notice($log, $e->getCode(), Context::getInstance()->getNoticeLogs());
             return false;
         }
         $end = Utils::microTime();
