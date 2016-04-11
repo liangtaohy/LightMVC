@@ -148,7 +148,7 @@ class Cimongo_base {
 	 */
 	private function connection_string(){
         # todo: 需要改造
-        $config = CimongoConfig::$conf['mongo'][CURRENT_TAG];
+        $config = CimongoConfig::$conf['mongo'][APP_NAME][CURRENT_TAG];
 
         $this->host = $config['host'];
         $this->port = $config['port'];
@@ -250,9 +250,11 @@ class Cimongo_base {
  *
  * @param $str
  * @param $code
+ * @throws Exception
  */
 function show_error($str, $code)
 {
-    var_dump($str, $code);
+    MeLog::warning($str, $code);
+    throw new Exception($str, $code);
 }
 

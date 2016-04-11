@@ -214,6 +214,12 @@ class MeLog
      */
 	private static function __logId()
 	{
+        if (isset($_POST['reqId']) && !empty(trim($_POST['reqId']))) {
+            return trim($_POST['reqId']);
+        }
+        if (isset($_GET['reqId']) && !empty(trim($_GET['reqId']))) {
+            return trim($_GET['reqId']);
+        }
 		$arr = gettimeofday();
 		return ((($arr['sec']*100000 + $arr['usec']/10) & 0x7FFFFFFF) | 0x80000000);
 	}
