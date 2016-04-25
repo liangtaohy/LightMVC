@@ -436,24 +436,24 @@ class DBProxy
      */
     public function doTransaction(array $arrSql)
     {
-        if (!$this->mysqli) {
+        if (!$this->_handle) {
             return false;
         }
 
-        $this->mysqli->autocommit(false);
+        $this->_handle->autocommit(false);
 
         foreach ($arrSql as $strSql) {
-            $ret = $this->mysqli->query($strSql);
+            $ret = $this->_handle->query($strSql);
             if (!$ret) {
                 $this->lastSql = $strSql;
-                $this->mysqli->rollback();
-                $this->mysqli->autocommit(true);
+                $this->_handle->rollback();
+                $this->_handle->autocommit(true);
                 return false;
             }
         }
 
-        $this->mysqli->commit();
-        $this->mysqli->autocommit(true);
+        $this->_handle->commit();
+        $this->_handle->autocommit(true);
 
         return true;
     }
@@ -478,7 +478,7 @@ class DBProxy
      */
     public function getLastInsertID()
     {
-        return mysqli_insert_id($this->mysqli);
+        return mysqli_insert_id($this->_handle);
     }
 
     /**
@@ -548,7 +548,7 @@ class DBProxy
      */
     public function buildInsertSqlStr(array $arrFields, $table)
     {
-        if (!$this->mysqli || count($arrFields) <= 0) {
+        if (!$this->_handle || count($arrFields) <= 0) {
             return false;
         }
 
@@ -563,7 +563,7 @@ class DBProxy
             $needComma = true;
             $strSql .= '`' . $field. '`';
             if (is_string($value)) {
-                $strValues .= "'" . mysqli_real_escape_string($this->mysqli, $value) . "'";
+                $strValues .= "'" . mysqli_real_escape_string($this->_handle, $value) . "'";
             } elseif (is_array($value) || is_object($value) || is_null($value)) {
                 continue;
             } else {
@@ -585,7 +585,7 @@ class DBProxy
      */
     public function buildUpdateSqlStr(array $arrFields, $table)
     {
-        if (!$this->mysqli || count($arrFields) <= 0) {
+        if (!$this->_handle || count($arrFields) <= 0) {
             return false;
         }
 
@@ -598,7 +598,7 @@ class DBProxy
             $needComma = true;
             $strSql .= '`' . $field. '`=';
             if (is_string($value)) {
-                $strSql .= "'" . mysqli_real_escape_string($this->mysqli, $value) . "'";
+                $strSql .= "'" . mysqli_real_escape_string($this->_handle, $value) . "'";
             } elseif (is_array($value) || is_object($value) || is_null($value)) {
                 continue;
             } else {
@@ -608,5 +608,18 @@ class DBProxy
         $strSql .= ' ';
 
         return $strSql;
+    }
+
+    /**
+     * Escapes special characters in a string for use in a SQL query
+     * @param string $str	String to be escaped
+     * @return bool|string	Return escaped string on success or false on failure
+     */
+    public function realEscapeString($str)
+    {
+        if (!$this->_handle) {
+            return false;
+        }
+        return $this->_handle->real_escape_string($str);
     }
 }
