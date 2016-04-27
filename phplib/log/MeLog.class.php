@@ -44,6 +44,8 @@ class MeLog
     protected $level;
     protected $logfile;
     protected $logid;
+    protected $reqid;
+    protected $sid;
     protected $starttime;
     protected $clientip;
 
@@ -61,6 +63,8 @@ class MeLog
         $this->logid		= self::__logId();
         $this->starttime	= $starttime;
         $this->clientip     = Utils::getClientIP();
+        $this->reqid        = self::__reqid();
+        $this->sid          = self::__sid();
     }
 
 	/**
@@ -181,12 +185,14 @@ class MeLog
 
         $intTimeUsed = microtime(true)*1000 - $this->starttime;
 
-        $str = sprintf( "%s: %s [%s:%d] errno[%d] ip[%s] logid[%u] uri[%s] time_used[%d] %s%s\n",
+        $str = sprintf( "%s: %s [%s:%d] errno[%d] ip[%s] logid[%u] sid[%s] reqid[%s] uri[%s] time_used[%d] %s%s\n",
                         self::$LogLevels[$level],
                         date('m-d H:i:s:', time()),
                         $file, $line, $errno,
                         $this->clientip,
                         $this->logid,
+                        $this->sid,
+                        $this->reqid,
                         isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
                         $intTimeUsed, $strArgs, $str);
 
@@ -214,15 +220,39 @@ class MeLog
      */
 	private static function __logId()
 	{
+		$arr = gettimeofday();
+		return ((($arr['sec']*100000 + $arr['usec']/10) & 0x7FFFFFFF) | 0x80000000);
+	}
+
+    /**
+     * 获取sid
+     * @return int|string
+     */
+    private static function __sid()
+    {
+        if (isset($_POST['sid']) && !empty(trim($_POST['sid']))) {
+            return trim($_POST['sid']);
+        }
+        if (isset($_GET['sid']) && !empty(trim($_GET['sid']))) {
+            return trim($_GET['sid']);
+        }
+        return 0;
+    }
+
+    /**
+     * 获取reqid
+     * @return int|string
+     */
+    private static function __reqid()
+    {
         if (isset($_POST['reqId']) && !empty(trim($_POST['reqId']))) {
             return trim($_POST['reqId']);
         }
         if (isset($_GET['reqId']) && !empty(trim($_GET['reqId']))) {
             return trim($_GET['reqId']);
         }
-		$arr = gettimeofday();
-		return ((($arr['sec']*100000 + $arr['usec']/10) & 0x7FFFFFFF) | 0x80000000);
-	}
+        return 0;
+    }
 }
 /* vim: set ts=4 sw=4 sts=4 tw=90 noet: */
 ?>

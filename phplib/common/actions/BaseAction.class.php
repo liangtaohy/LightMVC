@@ -102,7 +102,7 @@ class BaseAction extends Action
 
         foreach ($action_params['required'] as $item => $desc) {
             if (isset($params[$item]) && !empty($params[$item])) {
-                self::itemValidation($item, $params[$item], $desc);
+                return self::itemValidation($item, $params[$item], $desc);
             }
 
             throw new XdpOpenAPIException(XDPAPI_EC_PARAM, null, $item . '_required');

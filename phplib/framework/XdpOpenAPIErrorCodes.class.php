@@ -247,7 +247,7 @@ class XdpOpenAPIErrorDescs
     	XDPAPI_EC_PHONE_AUTH_UNAUTHORIZED_CLIENT => 'phone auth without permission',
         XDPAPI_EC_PHONE_AUTH_LOGIN_FALSE => 'phone auth passport login false',
         XDPAPI_EC_SMS_TOO_MANY_RECVS    => 'too many sms receivers: %d',
-        XDPAPI_EC_SMS_INTERNAL_ERROR    => 'sms internal error: %d %s',
+        XDPAPI_EC_SMS_INTERNAL_ERROR    => 'sms internal error: %s',
     );
 
     public static function errmsg($errcode)

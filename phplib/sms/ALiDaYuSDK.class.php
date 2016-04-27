@@ -69,11 +69,9 @@ class ALiDaYuSDK implements ISmsInterface
         }
 
         $rev_str = implode(self::IMPLODE_GLUE, $rev_nums);
-
         $param = array(
-            'customer'  => mysql_real_escape_string($customer),
+            'customer'  => $customer,
         );
-
         $req->setExtend($extend);
         $req->setSmsType("normal");
         $req->setSmsFreeSignName(self::SMS_TEST);
@@ -81,10 +79,10 @@ class ALiDaYuSDK implements ISmsInterface
         $req->setRecNum($rev_str);
         $req->setSmsTemplateCode(self::$templateIds[self::SMS_TEST]);
         $resp = $this->client->execute($req);
-
+        
         if (isset($resp->code)) { // error
             MeLog::warning('sms code[' . $resp->code . ']' . ' errmsg[' . json_encode($resp) . ']');
-            throw new XdpOpenAPIException(XDPAPI_EC_SMS_INTERNAL_ERROR, null, $resp->code, $resp->msg);
+            throw new XdpOpenAPIException(XDPAPI_EC_SMS_INTERNAL_ERROR, null, $resp->msg);
         }
 
         return XDPAPI_EC_SUCCESS; // success
@@ -114,10 +112,10 @@ class ALiDaYuSDK implements ISmsInterface
         $req->setRecNum($rev_num);
         $req->setSmsTemplateCode(self::$templateIds[self::SMS_VCODE]);
         $resp = $this->client->execute($req);
-        var_dump($resp);
+
         if (isset($resp->code)) { // error
             MeLog::warning('sms code[' . $resp->code . ']' . ' errmsg[' . json_encode($resp) . ']');
-            throw new XdpOpenAPIException(XDPAPI_EC_SMS_INTERNAL_ERROR, null, $resp->code, $resp->msg);
+            throw new XdpOpenAPIException(XDPAPI_EC_SMS_INTERNAL_ERROR, null, $resp->msg);
         }
 
         return XDPAPI_EC_SUCCESS; // success

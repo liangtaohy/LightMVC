@@ -33,7 +33,9 @@ class Utils
      */
     public static function getClientIP()
     {
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
+        if (isset($_SERVER['HTTP_X_REAL_IP'])) {
+            $ip = $_SERVER['HTTP_X_REAL_IP'];
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
             $_SERVER['HTTP_X_FORWARDED_FOR'] != '127.0.0.1') {
             $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
             $ip = $ips[0];
