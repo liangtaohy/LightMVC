@@ -55,6 +55,9 @@ class PubClassManager
                 'BaseAction'    => PHPLIB_PATH . '/common/actions/BaseAction.class.php',
                 'bdHttpRequest' => PHPLIB_PATH . '/bdHttp/bdHttpRequest.class.php',
                 'bdURL'         => PHPLIB_PATH . '/bdHttp/bdURL.class.php',
+                'RedisProxy'    => PHPLIB_PATH . '/redis/RedisProxy.class.php',
+                'Cache'         => PHPLIB_PATH . '/memcached/Cache.class.php',
+                'SMSFactory'    => PHPLIB_PATH . '/sms/SMSFactory.class.php',
             );
         } else {
             if (defined('DEBUG') && DEBUG == true) {

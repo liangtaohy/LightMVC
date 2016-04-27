@@ -7,6 +7,9 @@
  */
 class Utils
 {
+    private static $charset = 'abcdefghkmnprstuvwxyz0123456789';//随机因子
+    private static $charsetLen = 31;
+
     /**
      * mongo object id
      * @return string
@@ -366,5 +369,20 @@ class Utils
         } else {
             return $keyc . str_replace('=', '', base64_encode($result));
         }
+    }
+
+    /**
+     * 生成随机码,默认为4位,由数字和[a-z]的字母构成
+     * @param int $codelen
+     * @return string
+     */
+    public static function genRandCode($codelen = 4)
+    {
+        $code = '';
+        for ($i=0;$i<$codelen;$i++) {
+            $code .= self::$charset[mt_rand(0,self::$charsetLen)];
+        }
+
+        return $code;
     }
 }

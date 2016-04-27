@@ -97,6 +97,14 @@ define('XDPAPI_EC_BQL_IN', 406);
 define('XDPAPI_EC_BQL_COL', 407);
 
 /**
+ * SMS errors
+ */
+
+define('XDPAPI_EC_SMS_TOO_MANY_RECVS', 700);
+define('XDPAPI_EC_SMS_INTERNAL_ERROR', 701);
+
+
+/**
  * data store API errors
  **/
 define('XDPAPI_EC_DATA_UNKNOWN_ERROR', 800); // should never happen
@@ -238,6 +246,8 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_AUTHQUERY_PARAM => 'Invalid auth query parameter',
     	XDPAPI_EC_PHONE_AUTH_UNAUTHORIZED_CLIENT => 'phone auth without permission',
         XDPAPI_EC_PHONE_AUTH_LOGIN_FALSE => 'phone auth passport login false',
+        XDPAPI_EC_SMS_TOO_MANY_RECVS    => 'too many sms receivers: %d',
+        XDPAPI_EC_SMS_INTERNAL_ERROR    => 'sms internal error: %d %s',
     );
 
     public static function errmsg($errcode)

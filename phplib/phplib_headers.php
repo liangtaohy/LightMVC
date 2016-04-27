@@ -14,4 +14,5 @@ require_once(dirname(__FILE__) . "/log/MeLog.class.php");
 require_once(dirname(__FILE__) . "/utils/Utils.class.php");
 require_once(dirname(__FILE__) . "/utils/Validator.class.php");
 require_once(dirname(__FILE__) . '/db/CiMongo/Cimongo.php');
+require_once(dirname(__FILE__) . '/sms/taobao-sdk/TopSdk.php');
 require_once(dirname(__FILE__) . '/framework/XdpOpenAPIErrorCodes.class.php');

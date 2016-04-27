@@ -19,8 +19,11 @@ class CacheConfig
              * )
              */
         ),
+        
         self::CACHE_REDIS       => array(
-
+            'host'  => '127.0.0.1',
+            'port'  => 6379,
+            'pwd'   => 'Awt@20160x15$',
         ),
     );
 }

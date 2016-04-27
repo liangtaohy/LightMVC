@@ -20,7 +20,20 @@
  * @since v1.0.0
  *
  */
-require_once(DEPLOY_ROOT . '/phpsrc/conf/CimongoConfig.class.php');
+if (defined('DEPLOY_ROOT') === false) {
+    require_once('./CimongoConfig.class.php');
+} else {
+    require_once(DEPLOY_ROOT . '/phpsrc/conf/CimongoConfig.class.php');
+}
+
+if (defined('APP_NAME') === false) {
+    define('APP_NAME', 'default');
+}
+
+if (defined('CURRENT_TAG') === false) {
+    define('CURRENT_TAG', 'default');
+}
+
 class Cimongo_base {
 	# del: protected $CI;
 

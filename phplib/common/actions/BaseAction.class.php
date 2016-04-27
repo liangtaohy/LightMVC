@@ -8,12 +8,17 @@
  */
 class BaseAction extends Action
 {
+    const T_MOBILE = 'T_MOBILE';
+    const T_EMAIL = 'T_EMAIL';
+
     /**
      * Whether we are under debug mode or not.
      *
      * @var bool
      */
     protected $is_debug = false;
+
+    protected $_params = null;
 
     /**
      * 获取请求参数
@@ -22,7 +27,7 @@ class BaseAction extends Action
      */
     protected function getRequestParams()
     {
-        return array_merge($_GET, $_POST);
+        return isset($this->_params) ? $this->_params : $this->_params = array("trim", array_merge($_GET, $_POST));
     }
 
     /**
@@ -80,5 +85,58 @@ class BaseAction extends Action
     protected function isApi()
     {
         return false;
+    }
+
+    /**
+     * 检查必选参数
+     * @param $action_params
+     * @param $params
+     * @return bool
+     * @throws XdpOpenAPIException
+     */
+    protected function checkRequiredParams(&$action_params, &$params)
+    {
+        if (empty($action_params) || !isset($action_params['required']) || empty($action_params['required'])) {
+            return true;
+        }
+
+        foreach ($action_params['required'] as $item => $desc) {
+            if (isset($params[$item]) && !empty($params[$item])) {
+                self::itemValidation($item, $params[$item], $desc);
+            }
+
+            throw new XdpOpenAPIException(XDPAPI_EC_PARAM, null, $item . '_required');
+        }
+    }
+
+    /**
+     * 类型校验
+     * @param $item_name
+     * @param $value
+     * @param $desc
+     * @return bool
+     * @throws XdpOpenAPIException
+     */
+    public static function itemValidation($item_name, $value, $desc)
+    {
+        $ret = false;
+        $len = mb_strlen($value, 'UTF-8');
+        $type = $desc['type'];
+
+        switch ($type) {
+            case self::T_MOBILE :
+                $ret = Validator::isValidPhone($value);
+                break;
+            case self::T_EMAIL :
+                $ret = Validator::isValidEmail($value);
+                break;
+        }
+
+        if (!$ret) {
+                MeLog::warning("errno[" . XDPAPI_EC_PARAM . "]" . " errmsg[name:" . $item_name . "; value:" . $value . "]" );
+                throw new XdpOpenAPIException(XDPAPI_EC_PARAM, null, "param invalid name:" . $item_name . "; value:" . $value);
+        }
+
+        return true;
     }
 }
