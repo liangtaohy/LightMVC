@@ -10,6 +10,7 @@ class BaseAction extends Action
 {
     const T_MOBILE = 'T_MOBILE';
     const T_EMAIL = 'T_EMAIL';
+    const T_STRING = 'T_STRING';
 
     /**
      * Whether we are under debug mode or not.
@@ -27,7 +28,7 @@ class BaseAction extends Action
      */
     protected function getRequestParams()
     {
-        return isset($this->_params) ? $this->_params : $this->_params = array("trim", array_merge($_GET, $_POST));
+        return isset($this->_params) ? $this->_params : $this->_params = array_map("trim", array_merge($_GET, $_POST));
     }
 
     /**
@@ -102,10 +103,10 @@ class BaseAction extends Action
 
         foreach ($action_params['required'] as $item => $desc) {
             if (isset($params[$item]) && !empty($params[$item])) {
-                return self::itemValidation($item, $params[$item], $desc);
+                self::itemValidation($item, $params[$item], $desc);
+            } else {
+                throw new XdpOpenAPIException(XDPAPI_EC_PARAM, null, $item . '_required');
             }
-
-            throw new XdpOpenAPIException(XDPAPI_EC_PARAM, null, $item . '_required');
         }
     }
 
@@ -129,6 +130,14 @@ class BaseAction extends Action
                 break;
             case self::T_EMAIL :
                 $ret = Validator::isValidEmail($value);
+                break;
+            case self::T_STRING:
+                $min = isset($desc['min']) ? $desc['min'] : -1;
+                $max = isset($desc['max']) ? $desc['max'] : -1;
+
+                if ($len <= $max && $len >= $min) {
+                    $ret = true;
+                }
                 break;
         }
 
