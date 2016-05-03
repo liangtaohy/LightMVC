@@ -269,4 +269,14 @@ class RedisProxy
     {
         $this->_cache->expire($key, $ttl);
     }
+
+    /**
+     * 删除指定的key
+     * @param $key
+     * @return int
+     */
+    public function del($key)
+    {
+        return $this->_cache->del($key);
+    }
 }

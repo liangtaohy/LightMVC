@@ -11,6 +11,7 @@ class BaseAction extends Action
     const T_MOBILE = 'T_MOBILE';
     const T_EMAIL = 'T_EMAIL';
     const T_STRING = 'T_STRING';
+    const T_ENUM    = 'T_ENUM';
 
     /**
      * Whether we are under debug mode or not.

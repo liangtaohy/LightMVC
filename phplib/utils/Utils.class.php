@@ -325,7 +325,7 @@ class Utils
     {
         $ckey_length = 4;
 
-        $key = md5($key != '' ? $key : 'BaiduRc4Key');
+        $key = md5($key != '' ? $key : 'Test');
         $keya = md5(substr($key, 0, 16));
         $keyb = md5(substr($key, 16, 16));
         $keyc = $ckey_length ? ($operation == 'DECODE' ? substr($string, 0, $ckey_length) : substr(md5(microtime()), -$ckey_length)) : '';
@@ -386,5 +386,11 @@ class Utils
         }
 
         return $code;
+    }
+
+    public static function cryptuid($uid)
+    {
+        $uid = substr(md5($uid), 0, 5);
+        return hexdec($uid);
     }
 }
