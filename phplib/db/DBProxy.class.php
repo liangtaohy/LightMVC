@@ -623,6 +623,20 @@ class DBProxy
         return $this->_handle->real_escape_string($str);
     }
 
+    /**
+     * 格式化sql
+     *
+     * @param $str
+     * @return string
+     */
+    public function escape_str($str)
+    {
+        $str = $this->realEscapeString($str);
+
+        return $str;
+    }
+
+
     //=================== mysqli 事务 =======================
 
     /**
