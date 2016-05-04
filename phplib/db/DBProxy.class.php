@@ -198,6 +198,13 @@ class DBProxy
         return SysErrors::E_SUCCESS;
     }
 
+    public function __destruct()
+    {
+        if ($this->_handle) {
+            $this->_handle->close();
+        }
+    }
+
     /**
      * 关闭连接
      */
