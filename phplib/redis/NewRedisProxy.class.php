@@ -42,35 +42,25 @@ class NewRedisProxy
         return $redis;
     }
 
-    public function __construct()
+    private function __construct($host, $port = 6379, $pwd = '')
     {
-        var_dump(11111111);
-    }
+        $this->_host = $host;
+        $this->_port = $port;
+        $this->_pwd = $pwd;
+        $this->_cache = new Redis();
+        if ($this->_cache->pconnect($host, $port) === false) {
+            MeLog::fatal(sprintf(self::W_LOG, 'connect', SysErrors::E_CACHED_CONNECTION_FAILURE, $this->_cache->getLastError(), $this->_host, $this->_port, 'pwd:' . $pwd));
+            exit(0);
+            //return SysErrors::E_CACHED_CONNECTION_FAILURE;
+        }
 
-    public function ddd()
-    {
-        var_dump(11111111111111);
+        if (!empty($pwd)) {
+            if ($this->_cache->auth($this->_pwd) === false) {
+                MeLog::fatal(sprintf(self::W_LOG, 'auth', SysErrors::E_CACHED_AUTH_FAILURE, $this->_cache->getLastError(), $this->_host, $this->_port, 'pwd:' . $pwd));
+                exit(0);
+            }
+        }
     }
-
-//    private function __construct($host, $port = 6379, $pwd = '')
-//    {
-//        $this->_host = $host;
-//        $this->_port = $port;
-//        $this->_pwd = $pwd;
-//        $this->_cache = new Redis();
-//        if ($this->_cache->pconnect($host, $port) === false) {
-//            MeLog::fatal(sprintf(self::W_LOG, 'connect', SysErrors::E_CACHED_CONNECTION_FAILURE, $this->_cache->getLastError(), $this->_host, $this->_port, 'pwd:' . $pwd));
-//            exit(0);
-//            //return SysErrors::E_CACHED_CONNECTION_FAILURE;
-//        }
-//
-//        if (!empty($pwd)) {
-//            if ($this->_cache->auth($this->_pwd) === false) {
-//                MeLog::fatal(sprintf(self::W_LOG, 'auth', SysErrors::E_CACHED_AUTH_FAILURE, $this->_cache->getLastError(), $this->_host, $this->_port, 'pwd:' . $pwd));
-//                exit(0);
-//            }
-//        }
-//    }
 
     /**
      * 在当前机房尝试获取一个key对应的value
