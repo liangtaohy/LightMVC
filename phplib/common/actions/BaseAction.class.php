@@ -140,6 +140,13 @@ class BaseAction extends Action
                     $ret = true;
                 }
                 break;
+            case self::T_ENUM:
+                if (in_array($value, $desc['area'])) {
+                    $ret = true;
+                }
+                break;
+            default:
+                break;
         }
 
         if (!$ret) {
