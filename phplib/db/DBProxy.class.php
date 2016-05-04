@@ -622,4 +622,333 @@ class DBProxy
         }
         return $this->_handle->real_escape_string($str);
     }
+
+    //=================== mysqli 事务 =======================
+
+    /**
+     * Transaction enabled flag
+     *
+     * @var	bool
+     */
+    public $trans_enabled		= TRUE;
+
+    /**
+     * Strict transaction mode flag
+     *
+     * @var	bool
+     */
+    public $trans_strict		= TRUE;
+
+    /**
+     * Transaction depth level
+     *
+     * @var	int
+     */
+    protected $_trans_depth		= 0;
+
+    /**
+     * Transaction status flag
+     *
+     * Used with transactions to determine if a rollback should occur.
+     *
+     * @var	bool
+     */
+    protected $_trans_status	= TRUE;
+
+    /**
+     * Transaction failure flag
+     *
+     * Used with transactions to determine if a transaction has failed.
+     *
+     * @var	bool
+     */
+    protected $_trans_failure	= FALSE;
+
+    /**
+     * Disable Transactions
+     * This permits transactions to be disabled at run-time.
+     *
+     * @return	void
+     */
+    public function trans_off()
+    {
+        $this->trans_enabled = FALSE;
+    }
+
+    /**
+     * Enable/disable Transaction Strict Mode
+     *
+     * When strict mode is enabled, if you are running multiple groups of
+     * transactions, if one group fails all subsequent groups will be
+     * rolled back.
+     *
+     * If strict mode is disabled, each group is treated autonomously,
+     * meaning a failure of one group will not affect any others
+     *
+     * @param	bool	$mode = TRUE
+     * @return	void
+     */
+    public function trans_strict($mode = TRUE)
+    {
+        $this->trans_strict = is_bool($mode) ? $mode : TRUE;
+    }
+
+    /**
+     * Start Transaction
+     *
+     * @param	bool	$test_mode = FALSE
+     * @return	bool
+     */
+    public function trans_start($test_mode = FALSE)
+    {
+        if ( ! $this->trans_enabled)
+        {
+            return FALSE;
+        }
+
+        return $this->trans_begin($test_mode);
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Complete Transaction
+     *
+     * @return	bool
+     */
+    public function trans_complete()
+    {
+        if ( ! $this->trans_enabled)
+        {
+            return FALSE;
+        }
+
+        // The query() function will set this flag to FALSE in the event that a query failed
+        if ($this->_trans_status === FALSE OR $this->_trans_failure === TRUE)
+        {
+            $this->trans_rollback();
+
+            // If we are NOT running in strict mode, we will reset
+            // the _trans_status flag so that subsequent groups of
+            // transactions will be permitted.
+            if ($this->trans_strict === FALSE)
+            {
+                $this->_trans_status = TRUE;
+            }
+
+            MeLog::fatal('debug: DB Transaction Failure');
+            return FALSE;
+        }
+
+        return $this->trans_commit();
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Lets you retrieve the transaction flag to determine if it has failed
+     *
+     * @return	bool
+     */
+    public function trans_status()
+    {
+        return $this->_trans_status;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Begin Transaction
+     *
+     * @param	bool	$test_mode
+     * @return	bool
+     */
+    public function trans_begin($test_mode = FALSE)
+    {
+        if ( ! $this->trans_enabled)
+        {
+            return FALSE;
+        }
+        // When transactions are nested we only begin/commit/rollback the outermost ones
+        elseif ($this->_trans_depth > 0)
+        {
+            $this->_trans_depth++;
+            return TRUE;
+        }
+
+        // Reset the transaction failure flag.
+        // If the $test_mode flag is set to TRUE transactions will be rolled back
+        // even if the queries produce a successful result.
+        $this->_trans_failure = ($test_mode === TRUE);
+
+        if ($this->_trans_begin())
+        {
+            $this->_trans_depth++;
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Commit Transaction
+     *
+     * @return	bool
+     */
+    public function trans_commit()
+    {
+        if ( ! $this->trans_enabled OR $this->_trans_depth === 0)
+        {
+            return FALSE;
+        }
+        // When transactions are nested we only begin/commit/rollback the outermost ones
+        elseif ($this->_trans_depth > 1 OR $this->_trans_commit())
+        {
+            $this->_trans_depth--;
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Rollback Transaction
+     *
+     * @return	bool
+     */
+    public function trans_rollback()
+    {
+        if ( ! $this->trans_enabled OR $this->_trans_depth === 0)
+        {
+            return FALSE;
+        }
+        // When transactions are nested we only begin/commit/rollback the outermost ones
+        elseif ($this->_trans_depth > 1 OR $this->_trans_rollback())
+        {
+            $this->_trans_depth--;
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Begin Transaction
+     *
+     * @return	bool
+     */
+    protected function _trans_begin()
+    {
+        $this->_handle->autocommit(FALSE);
+        return is_php('5.5')
+            ? $this->_handle->begin_transaction()
+            : $this->simple_query('START TRANSACTION'); // can also be BEGIN or BEGIN WORK
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Commit Transaction
+     *
+     * @return	bool
+     */
+    protected function _trans_commit()
+    {
+        if ($this->_handle->commit())
+        {
+            $this->_handle->autocommit(TRUE);
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Rollback Transaction
+     *
+     * @return	bool
+     */
+    protected function _trans_rollback()
+    {
+        if ($this->_handle->rollback())
+        {
+            $this->_handle->autocommit(TRUE);
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Simple Query
+     * This is a simplified version of the query() function. Internally
+     * we only use it when running transaction commands since they do
+     * not require all the features of the main query() function.
+     *
+     * @param	string	the sql query
+     * @return	mixed
+     */
+    public function simple_query($sql)
+    {
+        if ( ! $this->_handle)
+        {
+            #todo: 需要添加重试
+            return FALSE;
+//            if ( ! $this->initialize())
+//            {
+//
+//            }
+        }
+
+        return $this->_execute($sql);
+    }
+
+    /**
+     * Execute the query
+     *
+     * @param	string	$sql	an SQL query
+     * @return	mixed
+     */
+    protected function _execute($sql)
+    {
+        return $this->_handle->query($this->_prep_query($sql));
+    }
+
+    /**
+     * DELETE hack flag
+     *
+     * Whether to use the MySQL "delete hack" which allows the number
+     * of affected rows to be shown. Uses a preg_replace when enabled,
+     * adding a bit more processing to all queries.
+     *
+     * @var	bool
+     */
+    public $delete_hack = TRUE;
+
+    /**
+     * Prep the query
+     *
+     * If needed, each database adapter can prep the query string
+     *
+     * @param	string	$sql	an SQL query
+     * @return	string
+     */
+    protected function _prep_query($sql)
+    {
+        // mysqli_affected_rows() returns 0 for "DELETE FROM TABLE" queries. This hack
+        // modifies the query so that it a proper number of affected rows is returned.
+        if ($this->delete_hack === TRUE && preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $sql))
+        {
+            return trim($sql).' WHERE 1=1';
+        }
+
+        return $sql;
+    }
+
 }
