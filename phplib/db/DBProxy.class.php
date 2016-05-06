@@ -323,12 +323,12 @@ class DBProxy
      */
     public function queryFirstRow($strSql)
     {
-        if (!$this->mysqli) {
+        if (!$this->_handle) {
             return false;
         }
 
         $this->lastSql = $strSql;
-        $objRes = $this->mysqli->query($this->lastSql);
+        $objRes = $this->_handle->query($this->lastSql);
         if (!$objRes) {
             return false;
         }
