@@ -194,6 +194,8 @@ class DBProxy
             MeLog::fatal('connect[' . $this->_config['dbname'] . '] config[' . json_encode($this->_config) . '] errmsg[' . mysqli_connect_error() . ']', SysErrors::E_DB_CONNECT_FAILED);
             return SysErrors::E_DB_CONNECT_FAILED;
         }
+        
+        $this->setCharset(isset($config['charset']) ? $config['charset'] : 'utf8');
 
         return SysErrors::E_SUCCESS;
     }
