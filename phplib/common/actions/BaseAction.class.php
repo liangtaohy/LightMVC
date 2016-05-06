@@ -12,6 +12,7 @@ class BaseAction extends Action
     const T_EMAIL = 'T_EMAIL';
     const T_STRING = 'T_STRING';
     const T_ENUM    = 'T_ENUM';
+    const T_PRICE   = 'T_PRICE';
 
     /**
      * Whether we are under debug mode or not.
@@ -145,6 +146,10 @@ class BaseAction extends Action
                     $ret = true;
                 }
                 break;
+            case self::T_PRICE:
+                if (is_int($value) || is_float($value) || floatval($value) >= 0) {
+                    return true;
+                }
             default:
                 break;
         }
