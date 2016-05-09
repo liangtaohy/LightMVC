@@ -279,4 +279,32 @@ class NewRedisProxy
     {
         return $this->_cache->del($key);
     }
+
+    /**
+     * 队列弹出数据
+     *
+     * @param $key
+     * @return string
+     */
+    public function rPop($key)
+    {
+        return $this->_cache->rPop($key);
+    }
+
+    /**
+     * 队列添加数据
+     *
+     * @param $key
+     * @param $value1
+     * @return mixed
+     */
+    public function lPush($key, $value1)
+    {
+        $args = func_get_args();
+
+        return call_user_func_array(
+            array($this->_cache, 'lPush'),
+            $args
+        );
+    }
 }
