@@ -194,6 +194,8 @@ class DBProxy
             MeLog::fatal('connect[' . $this->_config['dbname'] . '] config[' . json_encode($this->_config) . '] errmsg[' . mysqli_connect_error() . ']', SysErrors::E_DB_CONNECT_FAILED);
             return SysErrors::E_DB_CONNECT_FAILED;
         }
+        
+        $this->setCharset(isset($config['charset']) ? $config['charset'] : 'utf8');
 
         return SysErrors::E_SUCCESS;
     }
@@ -323,12 +325,12 @@ class DBProxy
      */
     public function queryFirstRow($strSql)
     {
-        if (!$this->mysqli) {
+        if (!$this->_handle) {
             return false;
         }
 
         $this->lastSql = $strSql;
-        $objRes = $this->mysqli->query($this->lastSql);
+        $objRes = $this->_handle->query($this->lastSql);
         if (!$objRes) {
             return false;
         }
@@ -972,4 +974,72 @@ class DBProxy
         return $sql;
     }
 
+    /**
+     *
+     * @param string $format
+     * @param array $argv
+     * @param int $offset
+     */
+    protected static function typeCheckVprintf($format, array &$argv, $offset)
+    {
+        $argc = count($argv);     // number of arguments total
+
+        $specs = '+-\'-.0123456789';  // +-'-.0123456789 are special printf specifiers
+        $pos   = 0;                   // string position
+        $param = $offset;             // current parameter
+
+        while ($pos = strpos($format, '%', $pos)) {	// read each %
+            if ($format[$pos + 1] == '%') {	// '%%' for literal %
+                $pos += 2;
+                continue;
+            }
+            while ($pos2 = strpos($specs, $format{$pos + 1})) {	// read past specs chars
+                $pos++;
+            }
+
+            if (ctype_alpha($format{$pos + 1})) {
+                if ((!is_scalar($argv[$param])) && (!is_null($argv[$param]))) {
+                    return false;
+                }
+
+                switch ($format{$pos + 1}) {	// use ascii value
+                    case 's': // the argument is treated as and presented as a string.
+                        if (!is_string($argv[$param])) {
+                            $argv[$param] = (string)$argv[$param];
+                        }
+                        break;
+
+                    case 'd': // presented as a (signed) decimal number.
+                    case 'b': // presented as a binary number.
+                    case 'c': // presented as the character with that ASCII value.
+                    case 'e': // presented as scientific notation (e.g. 1.2e+2).
+                    case 'u': // presented as an unsigned decimal number.
+                    case 'o': // presented as an octal number.
+                    case 'x': // presented as a hexadecimal number (with lowercase letters).
+                    case 'X': // presented as a hexadecimal number (with uppercase letters).
+                        if (!is_int($argv[$param])) {
+                            $argv[$param] = (int)$argv[$param];
+                        }
+                        break;
+
+                    case 'f': // presented as a floating-point number (locale aware).
+                    case 'F': // presented as a floating-point number (non-locale aware).
+                        if (!is_float($argv[$param])) {
+                            $argv[$param] = (float)$argv[$param];
+                        }
+                        break;
+                }
+
+                $param++;  // next please!
+            }
+
+            $pos++;  // your number is up!
+        }
+
+        // make sure the number of parameters actually matches the number of params in string
+        if ($param != $argc) {
+            return false;
+        }
+        return true;
+    }
 }
