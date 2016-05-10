@@ -14,6 +14,7 @@ class BaseAction extends Action
     const T_ENUM    = 'T_ENUM';
     const T_PRICE   = 'T_PRICE';
     const T_INT     = 'T_INT';
+    const T_URL     = 'T_URL';
 
     /**
      * Whether we are under debug mode or not.
@@ -150,6 +151,11 @@ class BaseAction extends Action
             case self::T_INT:
             case self::T_PRICE:
                 if (is_int($value) || is_float($value) || floatval($value) >= 0) {
+                    return true;
+                }
+                break;
+            case self::T_URL:
+                if (is_string($value) && $len < 1024 && Validator::isValidUrl($value)) {
                     return true;
                 }
                 break;

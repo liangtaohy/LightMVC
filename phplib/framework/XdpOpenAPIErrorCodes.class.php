@@ -84,6 +84,11 @@ define('XDPAPI_EC_PAY_ORDER_NOT_EXISTS', 302);
 define('XDPAPI_EC_PAY_NOT_AUTHORIZED', 303);
 define('XDPAPI_EC_PAY_STOPPED', 304);
 define('XDPAPI_EC_PAY_PASSWORD_NEEDED', 305);
+define('XDPAPI_EC_PAY_REPEATED', 306);
+define('XDPAPI_EC_PAY_ORDER_CLOSED', 307);
+define('XDPAPI_EC_PAY_ORDER_CANCEL', 308);
+define('XDPAPI_EC_PAY_BALANCE_NOT_ENOUGH', 309);
+define('XDPAPI_EC_PAY_GATEWAY_INVALID', 310);
 
 /**
  * Bql errors
@@ -249,6 +254,10 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_PHONE_AUTH_LOGIN_FALSE => 'phone auth passport login false',
         XDPAPI_EC_SMS_TOO_MANY_RECVS    => 'too many sms receivers: %d',
         XDPAPI_EC_SMS_INTERNAL_ERROR    => 'sms internal error: %s',
+        XDPAPI_EC_PAY_REPEATED          => 'pay_repeated: %s',
+        XDPAPI_EC_PAY_ORDER_CLOSED      => 'order_closed: %s',
+        XDPAPI_EC_PAY_ORDER_CANCEL      => 'order_canceled: %s',
+        XDPAPI_EC_PAY_BALANCE_NOT_ENOUGH    => 'wallet balance not enough: %s',
     );
 
     public static function errmsg($errcode)
