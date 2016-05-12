@@ -40,6 +40,7 @@ class PubClassManager
                 'SimpleTest'    => PHPLIB_PATH . '/testfw/SimpleTest.class.php',
                 'Utils'         => PHPLIB_PATH . '/utils/Utils.class.php',
                 'Validator'     => PHPLIB_PATH . '/utils/Validator.class.php',
+                'Smtp'          => PHPLIB_PATH . '/utils/Smtp.class.php',
                 'Action'        => PHPLIB_PATH . '/framework/Action.class.php',
                 'Application'   => PHPLIB_PATH . '/framework/Application.class.php',
                 'Context'       => PHPLIB_PATH . '/framework/Context.class.php',

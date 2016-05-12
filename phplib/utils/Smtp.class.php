@@ -21,6 +21,8 @@ class Smtp
     protected $timeout = 500;
     protected $connection = 0;
     protected $debug = false;
+    protected $username;
+    protected $password;
 
     protected $err_str;
     protected $err_no;
@@ -37,11 +39,14 @@ class Smtp
     protected $bound_begin = '';
     protected $bound_end = '';
 
-    public function __construct($server, $port = 25, $time_out = 500)
+    public function __construct($server, $username, $password, $port = 25, $time_out = 500)
     {
         $this->hostname = $server;
         $this->port = $port;
         $this->timeout = $time_out;
+
+        $this->username = $username;
+        $this->password = $password;
     }
 
     public function enableDebug($bEnable = false)
@@ -69,11 +74,11 @@ class Smtp
 
         if( !is_array($to_mail) )
         {
-            $to_mail = split(',', $to_mail);//如果不是数组，转换成数组，哪怕只有一个发送对象;
+            $to_mail = mb_split(',', $to_mail);//如果不是数组，转换成数组，哪怕只有一个发送对象;
         }
         if( !is_array($to_name) )
         {
-            $to_name = split(',', $to_name);//如果不是数组，转换成数组，哪怕只有一个发送对象;
+            $to_name = mb_split(',', $to_name);//如果不是数组，转换成数组，哪怕只有一个发送对象;
         }
 
         $to_mail = array_map('trim', $to_mail);
@@ -84,6 +89,17 @@ class Smtp
         //与服务器建立链接
         if( !$this->open() ) return false;
         if( !$this->command("HELO $this->hostname", 3, '250') ) return false;
+
+        // 用户登录认证
+        $username = base64_encode($this->username);
+        if (!$this->command("AUTH LOGIN {$username}", 3, '250')) {
+            return false;
+        }
+
+        $password = base64_encode($this->password);
+        if (!$this->command("{$password}", 3, '250')) {
+            return false;
+        }
 
         //不同的收件人需要有不同的邮件头
         for( $i = 0; $i < count($to_mail); $i++ )
@@ -164,8 +180,13 @@ class Smtp
 
         $err_no = 0;
         $err_str = '';
-        if( $this->debug ) echo "$this->hostname,$this->port,&$err_no, &$err_str, $this->timeout<BR>";
-        if( !$this->connection = fsockopen($this->hostname, $this->port, $err_no, $err_str, $this->timeout) )
+
+        $this->connection = fsockopen($this->hostname, $this->port, $err_no, $err_str, $this->timeout);
+        if ($this->debug) {
+            echo $this->hostname, ' ', $this->port, ' ', $err_no, ' ', $err_str, ' ', $this->timeout, PHP_EOL;
+        }
+
+        if(!$this->connection)
         {
             $this->err_str = '连接到　SMTP 服务器失败,错误信息：'.$err_str.'错误号：'.$err_no;
             return false;
@@ -176,7 +197,7 @@ class Smtp
             if( $this->debug ) $this->outdebug($resp);
             if( substr($resp, 0, 1) != '2' )
             {
-                $this->err_str = '服务器返回无效的信息：'.$resp.'请检查SMTP服务器是否正确';
+                $this->err_str = '服务器返回无效的信息：' . $resp . ' 请检查SMTP服务器是否正确';
                 return false;
             }
             return true;
