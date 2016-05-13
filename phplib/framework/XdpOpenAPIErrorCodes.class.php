@@ -145,6 +145,25 @@ define('XDPAPI_EC_AUTHQUERY_PARAM', 960);
  */
 define('XDPAPI_EC_PHONE_AUTH_UNAUTHORIZED_CLIENT',961);
 define('XDPAPI_EC_PHONE_AUTH_LOGIN_FALSE',962);
+
+/**
+ * EMAIL ERROR
+ */
+define('XDPAPI_EC_EMAIL_SEND_FAILE', 1200);
+
+/**
+ * PASSWORD ERROR
+ */
+define('XDPAPI_EC_INCORRECT_PASSWORD', 1230);
+
+define('XDPAPI_EC_COUPON_ERROR', 1300);
+
+define('XDPAPI_EC_PAY_ERROR', 1330);
+
+define('XDPAPI_EC_CHARGE_ERROR', 1360);
+
+define('XDPAPI_EC_WALLET_ERROR', 1400);
+
 /**
  * Product specified error codes, each product has 2000 error codes,
  * following code area is reserved for some products:
@@ -259,6 +278,18 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_PAY_ORDER_CLOSED      => 'order_closed: %s',
         XDPAPI_EC_PAY_ORDER_CANCEL      => 'order_canceled: %s',
         XDPAPI_EC_PAY_BALANCE_NOT_ENOUGH    => 'wallet balance not enough: %s',
+
+        XDPAPI_EC_EMAIL_SEND_FAILE => 'email send faile',
+
+        XDPAPI_EC_INCORRECT_PASSWORD => 'incorrect password',
+
+        XDPAPI_EC_COUPON_ERROR => 'coupon error: %s',
+
+        XDPAPI_EC_PAY_ERROR => 'pay error: %s',
+
+        XDPAPI_EC_CHARGE_ERROR => 'charge error: %s',
+
+        XDPAPI_EC_WALLET_ERROR => 'wallet error: %s',
     );
 
     public static function errmsg($errcode)
