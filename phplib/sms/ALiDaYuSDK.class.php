@@ -120,4 +120,34 @@ class ALiDaYuSDK implements ISmsInterface
 
         return XDPAPI_EC_SUCCESS; // success
     }
+
+    /**
+     * 发送短信通知
+     * @param $rev_num
+     * @param array $params
+     * @param $signname
+     * @param $tplid
+     * @param string $extend
+     * @return int
+     * @throws XdpOpenAPIException
+     */
+    public function sendsms($rev_num, array $params, $signname, $tplid, $extend = 'liangtao')
+    {
+        $req = new AlibabaAliqinFcSmsNumSendRequest;
+
+        $req->setExtend($extend);
+        $req->setSmsType("normal");
+        $req->setSmsFreeSignName($signname);
+        $req->setSmsParam(json_encode($params));
+        $req->setRecNum($rev_num);
+        $req->setSmsTemplateCode($tplid);
+        $resp = $this->client->execute($req);
+
+        if (isset($resp->code)) { // error
+            MeLog::warning('sms code[' . $resp->code . ']' . ' errmsg[' . json_encode($resp) . ']');
+            return XDPAPI_EC_SMS_INTERNAL_ERROR;
+        }
+
+        return XDPAPI_EC_SUCCESS; // success
+    }
 }

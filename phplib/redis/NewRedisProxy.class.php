@@ -244,6 +244,63 @@ class NewRedisProxy
     }
 
     /**
+     * 获取哈希表中key的所有域
+     * @param $key
+     * @return array|bool
+     */
+    public function hGetAll($key)
+    {
+        if(empty($key)){
+            return false;
+        }
+
+        try{
+            $cmd = 'hGetAll';
+            $ret = $this->_cache->hGetAll($key);
+        }catch (RedisException $e){
+            $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            return false;
+        }
+
+        if($ret===false){
+            $this->errmsg = "redis_error: failed cmd[hGetAll] key[$key] host[" .
+                "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+        }
+
+        return $ret;
+    }
+
+    /**
+     * hash multi set
+     * @param $key
+     * @param array $values
+     * @return bool
+     */
+    public function hMSet($key, array $values)
+    {
+        if(empty($key) || empty($values)) {
+            return false;
+        }
+
+        try{
+            $cmd = 'hMSet';
+            $ret = $this->_cache->hMset($key, $values);
+        }catch (RedisException $e){
+            $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            return false;
+        }
+
+        if($ret===false){
+            $this->errmsg = "redis_error: failed cmd[hMSet] key[$key] host[" .
+                "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+        }
+
+        return $ret;
+    }
+
+    /**
      * 删除当前数据库中所有Key
      * @return bool
      */
