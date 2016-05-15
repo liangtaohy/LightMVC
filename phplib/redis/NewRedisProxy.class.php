@@ -346,6 +346,34 @@ class NewRedisProxy
     }
 
     /**
+     * 获取指定pattern的key列表
+     * @param $pattern
+     * @return array|bool
+     */
+    public function keys($pattern = "*")
+    {
+        if (empty($pattern)) {
+            return false;
+        }
+
+        try {
+            $cmd = 'keys';
+            $ret = $this->_cache->keys($pattern);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$pattern}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            return false;
+        }
+
+        if($ret===false){
+            $this->errmsg = "redis_error: failed cmd[hMSet] key[$pattern] host[" .
+                "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+        }
+
+        return $ret;
+    }
+
+    /**
      * 删除当前数据库中所有Key
      * @return bool
      */
