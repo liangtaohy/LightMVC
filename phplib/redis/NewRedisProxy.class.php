@@ -192,6 +192,51 @@ class NewRedisProxy
     }
 
     /**
+     * 对key的某个域自增
+     * @param $key
+     * @param $field
+     * @param $step
+     * @return bool|float|int
+     */
+    public function hIncrBy($key, $field, $step)
+    {
+        if (empty($key) || empty($field) || empty($step)) {
+            return false;
+        }
+
+        $cmd = '';
+
+        try {
+            $type = gettype($step);
+            if ($type == 'integer') {
+                $cmd = 'hIncrBy';
+                $res = $this->_cache->hIncrBy($key, $field, $step);
+            } elseif ($type == 'double') {
+                $cmd = 'hIncrByFloat';
+                $res = $this->_cache->hIncrByFloat($key, $field, $step);
+            } else {
+                $this->errmsg = "redis_error: cmd[{$cmd}] invalid step type[{$step}]";
+                MeLog::warning($this->errmsg);
+                return false;
+            }
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
+        if (false === $res) {
+            $this->errmsg = "redis_error: failed or unsupported value type cmd[{$cmd}] " .
+                "key[{$key}] step[{$step}] host[" .
+                "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
+        }
+        
+        return $res;
+    }
+
+    /**
      * 在当前机房，为hash插入某个key=》v
      *
      * @param string $key hash的key
