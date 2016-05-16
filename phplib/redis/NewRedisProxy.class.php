@@ -82,12 +82,14 @@ class NewRedisProxy
         } catch (RedisException $e) {
             $this->errmsg = "redis_error: redis is down or overload cmd[get] key[$key] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return SysErrors::E_CACHED_FAILURE;
         }
 
         if (false === $res) { // data not existed
             $this->errmsg = "redis_error: not exist cmd[get] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
 
         return $res;
@@ -115,12 +117,14 @@ class NewRedisProxy
         } catch (RedisException $e) {
             $this->errmsg = "redis_error: redis is down or overload cmd[set] key[$key] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return SysErrors::E_CACHED_FAILURE;
         }
 
         if (false === $res) { // 数据写失败
             $this->errmsg = "redis_error: failed cmd[set] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
             return SysErrors::E_CACHED_NOTSTORED;
         }
 
@@ -156,6 +160,7 @@ class NewRedisProxy
         } catch (RedisException $e) {
             $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return false;
         }
 
@@ -163,6 +168,7 @@ class NewRedisProxy
             $this->errmsg = "redis_error: failed or unsupported value type cmd[{$cmd}] " .
                 "key[{$key}] step[{$step}] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
         return $res;
     }
@@ -181,7 +187,15 @@ class NewRedisProxy
             return false;
         }
 
-        $res = $this->_cache->decr($key , $step);
+        try {
+            $res = $this->_cache->decr($key , $step);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{decr}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
 
         if (false === $res) {
             $this->errmsg = "redis_error: failed cmd[decrBy] key[$key] host[" .
@@ -277,12 +291,14 @@ class NewRedisProxy
         }catch (RedisException $e){
             $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return false;
         }
 
         if($ret===false){
             $this->errmsg = "redis_error: failed cmd[hGet] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
 
         return $ret;
@@ -305,12 +321,14 @@ class NewRedisProxy
         }catch (RedisException $e){
             $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return false;
         }
 
         if($ret===false){
             $this->errmsg = "redis_error: failed cmd[hGetAll] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
 
         return $ret;
@@ -334,12 +352,14 @@ class NewRedisProxy
         }catch (RedisException $e){
             $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return false;
         }
 
         if($ret===false){
             $this->errmsg = "redis_error: failed cmd[hMSet] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
 
         return $ret;
@@ -362,12 +382,14 @@ class NewRedisProxy
         } catch (RedisException $e) {
             $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$pattern}] " .
                 "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
             return false;
         }
 
         if($ret===false){
             $this->errmsg = "redis_error: failed cmd[hMSet] key[$pattern] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
 
         return $ret;
@@ -407,7 +429,16 @@ class NewRedisProxy
      */
     public function del($key)
     {
-        return $this->_cache->del($key);
+        try {
+            $ret = $this->_cache->del($key);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{del}] key[*] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
+        return $ret;
     }
 
     /**
@@ -418,7 +449,16 @@ class NewRedisProxy
      */
     public function rPop($key)
     {
-        return $this->_cache->rPop($key);
+        try {
+            $ret = $this->_cache->rPop($key);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{rPop}] key[*] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
+        return $ret;
     }
 
     /**
@@ -432,9 +472,18 @@ class NewRedisProxy
     {
         $args = func_get_args();
 
-        return call_user_func_array(
-            array($this->_cache, 'lPush'),
-            $args
-        );
+        try {
+            $ret = call_user_func_array(
+                array($this->_cache, 'lPush'),
+                $args
+            );
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{lPush}] key[*] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
+        return $ret;
     }
 }
