@@ -419,7 +419,7 @@ class NewRedisProxy
      */
     public function expire($key, $ttl)
     {
-        $this->_cache->expire($key, $ttl);
+        return $this->_cache->expire($key, $ttl);
     }
 
     /**
