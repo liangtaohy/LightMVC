@@ -305,6 +305,37 @@ class NewRedisProxy
     }
 
     /**
+     * hMGet
+     * @param $key
+     * @param $fields
+     * @return array|bool
+     */
+    public function hMGet($key, $fields)
+    {
+        if (empty($key) || empty($fields)) {
+            return false;
+        }
+
+        try {
+            $cmd = 'hMGet';
+            $ret = $this->_cache->hMGet($key, $fields);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
+        if($ret===false){
+            $this->errmsg = "redis_error: failed cmd[{$cmd}] key[$key] host[" .
+                "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
+        }
+
+        return $ret;
+    }
+
+    /**
      * 获取哈希表中key的所有域
      * @param $key
      * @return array|bool
