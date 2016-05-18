@@ -21,7 +21,7 @@
  *
  */
 if (defined('DEPLOY_ROOT') === false) {
-    require_once('./CimongoConfig.class.php');
+    require_once(dirname(__FILE__) . '/CimongoConfig.class.php');
 } else {
     require_once(DEPLOY_ROOT . '/phpsrc/conf/CimongoConfig.class.php');
 }

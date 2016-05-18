@@ -167,6 +167,11 @@ define('XDPAPI_EC_NOT_OPEN_WALLET', 1401);
 define('XDPAPI_EC_BALANCE_NOT_ENOUGH', 1402);
 
 /**
+ * 流控
+ */
+define('XDPAPI_EC_FLOW_LIMIT', 1401);
+
+/**
  * Product specified error codes, each product has 2000 error codes,
  * following code area is reserved for some products:
  * Space	10000 ~ 11999
@@ -295,6 +300,7 @@ class XdpOpenAPIErrorDescs
 
         XDPAPI_EC_NOT_OPEN_WALLET => 'Open wallet first',
         XDPAPI_EC_BALANCE_NOT_ENOUGH => 'Balance is not enough',
+        XDPAPI_EC_FLOW_LIMIT    => 'flow limit: %s',
     );
 
     public static function errmsg($errcode)

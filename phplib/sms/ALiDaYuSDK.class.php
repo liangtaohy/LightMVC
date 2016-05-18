@@ -98,6 +98,8 @@ class ALiDaYuSDK implements ISmsInterface
      */
     public function sendvcode($rev_num, $product, $vcode, $extend = 'vcode1234')
     {
+        $now = Utils::microTime();
+
         $req = new AlibabaAliqinFcSmsNumSendRequest;
 
         $param = array(
@@ -113,11 +115,14 @@ class ALiDaYuSDK implements ISmsInterface
         $req->setSmsTemplateCode(self::$templateIds[self::SMS_VCODE]);
         $resp = $this->client->execute($req);
 
+        $end = Utils::microTime();
         if (isset($resp->code)) { // error
             MeLog::warning('sms code[' . $resp->code . ']' . ' errmsg[' . json_encode($resp) . ']');
+            MeLog::notice(sprintf('sms method[%s] cost [%d] code[%d] errmsg[%s]', __METHOD__, $end - $now, $resp->code, serialize($resp)));
             throw new XdpOpenAPIException(XDPAPI_EC_SMS_INTERNAL_ERROR, null, $resp->msg);
         }
 
+        MeLog::notice(sprintf('sms method[%s] cost [%d] code[0] errmsg[%s]', __METHOD__, $end - $now, serialize($resp)));
         return XDPAPI_EC_SUCCESS; // success
     }
 
@@ -133,6 +138,7 @@ class ALiDaYuSDK implements ISmsInterface
      */
     public function sendsms($rev_num, array $params, $signname, $tplid, $extend = 'liangtao')
     {
+        $now = Utils::microTime();
         $req = new AlibabaAliqinFcSmsNumSendRequest;
 
         $req->setExtend($extend);
@@ -143,11 +149,14 @@ class ALiDaYuSDK implements ISmsInterface
         $req->setSmsTemplateCode($tplid);
         $resp = $this->client->execute($req);
 
+        $end = Utils::microTime();
         if (isset($resp->code)) { // error
             MeLog::warning('sms code[' . $resp->code . ']' . ' errmsg[' . json_encode($resp) . ']');
+            MeLog::notice(sprintf('sms method[%s] cost [%d] code[%d] errmsg[%s]', __METHOD__, $end - $now, $resp->code, serialize($resp)));
             return XDPAPI_EC_SMS_INTERNAL_ERROR;
         }
 
+        MeLog::notice(sprintf('sms method[%s] cost [%d] code[0] errmsg[%s]', __METHOD__, $end - $now, serialize($resp)));
         return XDPAPI_EC_SUCCESS; // success
     }
 }

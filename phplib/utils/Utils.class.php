@@ -7,8 +7,8 @@
  */
 class Utils
 {
-    private static $charset = 'abcdefghkmnprstuvwxyz0123456789';//随机因子
-    private static $charsetLen = 31;
+    private static $charset = 'abcdefghkmnprstuvwxyz123456789';//随机因子
+    private static $charsetLen = 30;
 
     /**
      * mongo object id
@@ -384,6 +384,10 @@ class Utils
         for ($i=0;$i<$codelen;$i++) {
             $code .= self::$charset[mt_rand(0,self::$charsetLen)];
         }
+        if (strlen($code) < $codelen) {
+            $code .= '9';
+        }
+        MeLog::debug('vcode: ' . $code);
 
         return $code;
     }

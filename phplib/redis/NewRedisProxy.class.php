@@ -264,11 +264,19 @@ class NewRedisProxy
             return false;
         }
 
-        $res = $this->_cache->hSet($key, $field, $val);
+        try {
+            $res = $this->_cache->hSet($key, $field, $val);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{hSet}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
 
         if (false === $res) {
             $this->errmsg = "redis_error: failed cmd[hSet] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
         return $res;
     }
@@ -297,6 +305,37 @@ class NewRedisProxy
 
         if($ret===false){
             $this->errmsg = "redis_error: failed cmd[hGet] key[$key] host[" .
+                "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
+        }
+
+        return $ret;
+    }
+
+    /**
+     * hMGet
+     * @param $key
+     * @param $fields
+     * @return array|bool
+     */
+    public function hMGet($key, $fields)
+    {
+        if (empty($key) || empty($fields)) {
+            return false;
+        }
+
+        try {
+            $cmd = 'hMGet';
+            $ret = $this->_cache->hMGet($key, $fields);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{$cmd}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
+
+        if($ret===false){
+            $this->errmsg = "redis_error: failed cmd[{$cmd}] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
             MeLog::warning($this->errmsg);
         }
@@ -419,7 +458,7 @@ class NewRedisProxy
      */
     public function expire($key, $ttl)
     {
-        $this->_cache->expire($key, $ttl);
+        return $this->_cache->expire($key, $ttl);
     }
 
     /**
