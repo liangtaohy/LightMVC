@@ -163,6 +163,8 @@ define('XDPAPI_EC_PAY_ERROR', 1330);
 define('XDPAPI_EC_CHARGE_ERROR', 1360);
 
 define('XDPAPI_EC_WALLET_ERROR', 1400);
+define('XDPAPI_EC_NOT_OPEN_WALLET', 1401);
+define('XDPAPI_EC_BALANCE_NOT_ENOUGH', 1402);
 
 /**
  * Product specified error codes, each product has 2000 error codes,
@@ -290,6 +292,9 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_CHARGE_ERROR => 'charge error: %s',
 
         XDPAPI_EC_WALLET_ERROR => 'wallet error: %s',
+
+        XDPAPI_EC_NOT_OPEN_WALLET => 'Open wallet first',
+        XDPAPI_EC_BALANCE_NOT_ENOUGH => 'Balance is not enough',
     );
 
     public static function errmsg($errcode)
