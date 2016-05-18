@@ -264,11 +264,19 @@ class NewRedisProxy
             return false;
         }
 
-        $res = $this->_cache->hSet($key, $field, $val);
+        try {
+            $res = $this->_cache->hSet($key, $field, $val);
+        } catch (RedisException $e) {
+            $this->errmsg = "redis_error: redis is down or overload cmd[{hSet}] key[{$key}] " .
+                "host[{$this->_host}] port[{$this->_port}] errno[{$e->getCode()}] errmsg[{$e->getMessage()}]";
+            MeLog::fatal($this->errmsg);
+            return false;
+        }
 
         if (false === $res) {
             $this->errmsg = "redis_error: failed cmd[hSet] key[$key] host[" .
                 "{$this->_host}] port[{$this->_port}] errmsg[{$this->_cache->getLastError()}]";
+            MeLog::warning($this->errmsg);
         }
         return $res;
     }
