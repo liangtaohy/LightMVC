@@ -98,7 +98,7 @@ class FrequencyAuth
             return array();
         }
 
-        return serialize($v);
+        return unserialize($v);
     }
 
     /**
@@ -160,7 +160,7 @@ class FrequencyAuth
             return false;
         }
 
-        $cache->decrBy($key, -1);
+        $cache->decrBy($key, 1);
         return true;
     }
 }
