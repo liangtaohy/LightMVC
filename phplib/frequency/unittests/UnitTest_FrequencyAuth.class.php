@@ -29,3 +29,5 @@ class UnitTest_FrequencyAuth implements IBaseTest
         SimpleTest::summary();
     }
 }
+
+UnitTest_FrequencyAuth::run();
