@@ -60,6 +60,7 @@ class PubClassManager
                 'Cache'         => PHPLIB_PATH . '/memcached/Cache.class.php',
                 'SMSFactory'    => PHPLIB_PATH . '/sms/SMSFactory.class.php',
                 'FrequencyAuth' => PHPLIB_PATH . '/frequency/FrequencyAuth.class.php',
+                'LogStash'      => PHPLIB_PATH . '/log/LogStash.class.php',
             );
         } else {
             if (defined('DEBUG') && DEBUG == true) {
