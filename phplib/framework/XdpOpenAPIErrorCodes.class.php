@@ -165,6 +165,11 @@ define('XDPAPI_EC_CHARGE_ERROR', 1360);
 define('XDPAPI_EC_WALLET_ERROR', 1400);
 
 /**
+ * 流控
+ */
+define('XDPAPI_EC_FLOW_LIMIT', 1401);
+
+/**
  * Product specified error codes, each product has 2000 error codes,
  * following code area is reserved for some products:
  * Space	10000 ~ 11999
@@ -290,6 +295,7 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_CHARGE_ERROR => 'charge error: %s',
 
         XDPAPI_EC_WALLET_ERROR => 'wallet error: %s',
+        XDPAPI_EC_FLOW_LIMIT    => 'flow limit: %s',
     );
 
     public static function errmsg($errcode)
