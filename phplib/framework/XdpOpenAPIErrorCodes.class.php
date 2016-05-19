@@ -165,6 +165,7 @@ define('XDPAPI_EC_CHARGE_ERROR', 1360);
 define('XDPAPI_EC_WALLET_ERROR', 1400);
 define('XDPAPI_EC_NOT_OPEN_WALLET', 1401);
 define('XDPAPI_EC_BALANCE_NOT_ENOUGH', 1402);
+define('XDPAPI_EC_AUTOOPEN_WALLET_FAILED', 1403);
 
 /**
  * 流控
@@ -300,6 +301,7 @@ class XdpOpenAPIErrorDescs
 
         XDPAPI_EC_NOT_OPEN_WALLET => 'Open wallet first',
         XDPAPI_EC_BALANCE_NOT_ENOUGH => 'Balance is not enough',
+        XDPAPI_EC_AUTOOPEN_WALLET_FAILED => 'auto open wallet error: %s',
         XDPAPI_EC_FLOW_LIMIT    => 'flow limit: %s',
     );
 
