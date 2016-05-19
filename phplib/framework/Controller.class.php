@@ -119,7 +119,8 @@ class Controller
     public function determineRoute2Action($path)
     {
         if (!is_string($path) || empty($path)) {
-            return array(self::CLASS_NOT_FOUND_ACTION);
+            throw new XdpOpenAPIException(XDPAPI_EC_METHOD);
+            //return array(self::CLASS_NOT_FOUND_ACTION);
         }
 
         $result = array();
@@ -131,7 +132,8 @@ class Controller
         } else if ($this->hitRegexMap($path, $result)) {
             return $result;
         }
-        return array(self::CLASS_NOT_FOUND_ACTION);
+        throw new XdpOpenAPIException(XDPAPI_EC_METHOD);
+        //return array(self::CLASS_NOT_FOUND_ACTION);
     }
 
     /**
