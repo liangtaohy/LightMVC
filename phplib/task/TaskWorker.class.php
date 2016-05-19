@@ -4,6 +4,10 @@
  * User: deliang
  * DateTime: 5/18/16 10:23 AM
  */
+require_once __DIR__ . '/TaskConfig.class.php';
+require_once __DIR__ . '/TaskException.php';
+require_once __DIR__ . '/Task.class.php';
+
 class TaskWorker
 {
 
@@ -46,6 +50,7 @@ class TaskWorker
             $this->worker->addFunction($funcName, function(GearmanJob $job, &$config) {
                 $workload = $job->workload();
                 $ret = json_decode($workload, true);
+                var_dump($ret);
 
                 if(isset($ret['timeline']) && !empty($ret['timeline']) && strtotime($ret['timeline'])){
                     $t = strtotime($ret['timeline']);

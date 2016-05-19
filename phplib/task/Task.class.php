@@ -4,6 +4,9 @@
  * User: deliang
  * DateTime: 5/17/16 6:02 PM
  */
+require_once __DIR__ . '/TaskConfig.class.php';
+require_once __DIR__ . '/TaskException.php';
+
 class Task
 {
 
@@ -48,7 +51,7 @@ class Task
     public static function getInstance()
     {
         if (!self::$instance) {
-            self::$instance = new self();
+            self::$instance = new Task();
         }
 
         return self::$instance;

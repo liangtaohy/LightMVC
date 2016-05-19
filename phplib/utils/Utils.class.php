@@ -420,3 +420,37 @@ if ( ! function_exists('is_php'))
         return $_is_php[$version];
     }
 }
+
+if (! function_exists('mask_string'))
+{
+
+    /**
+     * 字符串打码
+     *
+     * @param $string
+     * @param int $len
+     * @param string $mask
+     * @return mixed
+     */
+    function mask_string($string, $len = 4, $mask = '*')
+    {
+        $_len = mb_strlen($string);
+        if ($_len <= $len) {
+            return $string;
+        }
+        $mid = (int) ($_len - $len) / 2;
+        $str = mb_split('', $string);
+
+        $_string = '';
+        foreach ($str as $k => $_str) {
+            if ($k > $mid || $k <= $mid + $len) {
+                $_string .= $mask;
+            } else {
+                $_string .= $_str;
+            }
+        }
+
+        return $_string;
+    }
+
+}
