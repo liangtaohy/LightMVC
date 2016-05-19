@@ -381,28 +381,22 @@ class LogStash
 	 * @return mixed
 	 */
 	private function parser($message){
-		$message = str_replace(':-',':"-"',$message);
-		$message = preg_replace('/\\\x[0-9a-f]{2}/i','?', $message);
-		$json = json_decode($message,true);
-		if($json['timestamp'] == ''){
-			$this->log('empty timestamp log:'. $message);
-			return false;
-		}
-
-		list($request_url,$params) = explode('?',$json['requesturi']);
-
-		$client = explode(',',$json['client']);
-		if(count($client) > 1){
-			$json['client'] = array_shift($client);
-		}elseif($json['client'] == '-'){
-			$json['client'] = '127.0.0.1';
-		}
-		parse_str($params,$paramsOutput);
-		$json['responsetime'] = floatval($json['responsetime']);
-		$json['resquesturi'] = $request_url;
-		$json['args'] = $paramsOutput;
-		unset($request_url,$params,$paramsOutput,$client);
-		return $json;
+		$message = array(
+            'level' => '',
+            'timestamp'  => '',
+            'errno' => '',
+            'client_ip' => '',
+            'logid' => '',
+            'sid' => '',
+            'reqid' => '',
+            'uid' => '',
+            'role' => '',
+            'uri' => '',
+            'time' => '',
+            'method' => '',
+            'request_body' => '',
+            'result' => '',
+        );
 	}
 
 
