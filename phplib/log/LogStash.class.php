@@ -380,7 +380,7 @@ class LogStash
 	 * @param $message
 	 * @return mixed
 	 */
-	private function parser($message){
+	private function parser($log){
 		$message = array(
             'level' => '',
             'timestamp'  => '',
@@ -396,7 +396,65 @@ class LogStash
             'method' => '',
             'request_body' => '',
             'result' => '',
+            'upstream' => '',
+            'host' => '',
+            'api' => '',
+            'cost' => '',
+            'end' => '',
+            'start' => '',
+            'response' => '',
+            'params' => '',
+            'notify' => '',
+            'level' => '',
+            'reason' => '',
+            'msg' => '',
         );
+
+        $pattern = '/^([A-Z]+): (\d\d-\d\d \d\d:\d\d:\d\d): .*? errno\[(\d+)\] ip\[(\d+\.\d+\.\d+\.\d+)\] logid\[(\d+)\] sid\[([a-zA-Z0-9\-]+)\] reqid\[([a-zA-Z0-9\-]+)\] uri\[([a-zA-Z0-9\/]+).*?\] time_used\[(\d+)\] (.*)/';
+        $matches = array();
+        $ret = preg_match_all($pattern, $log, $matches);
+
+        if ($ret) {
+            $message['log_tag'] = $matches[1][0];
+            $message['timestamp'] = $matches[2][0];
+            $message['errno'] = $matches[3][0];
+            $message['client_ip'] = $matches[4][0];
+            $message['logid'] = $matches[5][0];
+            $message['sid'] = $matches[6][0];
+            $message['reqid'] = $matches[7][0];
+            $message['url'] = $matches[8][0];
+            $message['time_used'] = $matches[9][0];
+            $extra = $matches[10][0];
+            unset($matches);
+            if ($message['log_tag'] == 'NOTICE') {
+                $np = '/^uid\[([A-Z0-9]+)\] role\[([a-zA-Z0-9\-\_,]+)\] (.*)/';
+                $ret = preg_match_all($np, $extra, $matches);
+                if ($ret) {
+                    $message['uid'] = $matches[1][0];
+                    $message['role'] = $matches[2][0];
+                    $extra = $matches[3][0];
+                }
+            }
+
+            unset($matches);
+            $np = '/^time\[[0-9]+\] method\[([a-zA-Z]+)\] (.*)/';
+            $ret = preg_match_all($np, $extra, $matches);
+            if ($ret) {
+                $message['method'] = $matches[1][0];
+                $extra = $matches[2][0];
+            }
+            unset($matches);
+            $np = '/^notify level\[([a-zA-Z]+)\] method\[([a-zA-Z:]+)\] msg\[(.*)?\].*/';
+            $ret = preg_match_all($np, $extra, $matches);
+            if ($ret) {
+                $message['notify'] = 1;
+                $message['level'] = $matches[1][0];
+                $message['method'] = $matches[2][0];
+                $message['msg'] = $matches[3][0];
+            }
+        }
+
+        return json_encode($message);
 	}
 
 
