@@ -12,9 +12,17 @@ class Task
     const TASK_HIGHT = 0x3;
     const TASK_HIGH_BACKGROUND = 0x4;
     const TASK_LOW = 0x5;
-    const TASK_LOW_BACKGROUND = Ox6;
+    const TASK_LOW_BACKGROUND = 0x6;
 
-    protected $taskMap = array(
+    const TASK_DO = 0x7;
+    const TASK_DO_BACKGROUND = 0x8;
+    const TASK_DO_HIGH = 0x9;
+    const TASK_DO_HIGH_BACKGROUND = 0xA;
+    const TASK_DO_LOW = 0xB;
+    const TASK_DO_LOW_BACKGROUND = 0xC;
+    const TASK_DO_NORMAL = 0xD;
+
+    protected static $taskMap = array(
         self::TASK_DEFAULT => 'addTask',
         self::TASK_BACKGROUND => 'addTaskBackground',
         self::TASK_HIGHT => 'addTaskHigh',
@@ -23,30 +31,89 @@ class Task
         self::TASK_LOW_BACKGROUND => 'addTaskLowBackground',
     );
 
-    protected $client;
+    protected static $taskDoMap = array(
+        self::TASK_DO => 'do',
+        self::TASK_DO_BACKGROUND => 'doBackground',
+        self::TASK_DO_HIGH => 'doHigh',
+        self::TASK_DO_HIGH_BACKGROUND => 'doHighBackground',
+        self::TASK_DO_LOW => 'doLow',
+        self::TASK_DO_LOW_BACKGROUND => 'doLowBackground',
+        self::TASK_DO_NORMAL => 'doNormal',
+    );
 
-    public function __construct()
+    protected static $client;
+
+    protected static $instance;
+
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    private function __construct()
     {
         if (!isset(TaskConfig::$config['server'])) {
             throw new TaskException('not set the server config');
         }
         $serverConfig = implode(',', TaskConfig::$config['server']);
-        $this->client = new GearmanClient();
-        $this->client->addServers($serverConfig);
+        self::$client = new GearmanClient();
+        self::$client->addServers($serverConfig);
     }
 
-    public function addTask($name, array $data, $type = self::TASK_DEFAULT)
+    /**
+     * 添加并行任务
+     *
+     * @param $name
+     * @param array $data
+     * @param int $type
+     * @return mixed
+     * @throws TaskException
+     */
+    public static function addTask($name, array $data, $type = self::TASK_DEFAULT)
     {
-        if (!isset($this->taskMap[$type])) {
+        //var_dump($name, $data, $type);
+        if (!isset(self::$taskMap[$type])) {
             throw new TaskException('not exsit type', 300010);
         }
+        self::getInstance();
 
+        $method = self::$taskMap[$type];
         $data = json_encode($data);
-        return $this->client->{$this->taskMap[$type]}($name, $data);
+        return self::$client->$method($name, $data);
     }
 
-    public function run()
+    /**
+     * 添加异步任务
+     *
+     * @param $name
+     * @param array $data
+     * @param int $type
+     * @return mixed
+     * @throws TaskException
+     */
+    public static function addDo($name, array $data, $type = self::TASK_DO_HIGH_BACKGROUND)
     {
-        $this->client->runTasks();
+        if (!isset(self::$taskDoMap[$type])) {
+            throw new TaskException('not exsit type', 300010);
+        }
+        self::getInstance();
+
+        $method = self::$taskDoMap[$type];
+        $data = json_encode($data);
+        return self::$client->$method($name, $data);
+    }
+
+    /**
+     * 提交并行任务
+     */
+    public static function run()
+    {
+        self::getInstance();
+
+        self::$client->runTasks();
     }
 }

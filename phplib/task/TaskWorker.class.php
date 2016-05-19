@@ -6,6 +6,9 @@
  */
 class TaskWorker
 {
+
+    const TASK_INTERVAL_USLEEP = 3000;
+
     /**
      * 句柄
      * @var GearmanWorker
@@ -18,9 +21,9 @@ class TaskWorker
      * @var array
      */
     protected $funcsConfig = array(
-        'exmaple' => array(
-            'class' => 'democlass',
-            'method' => 'demomethod',
+        'aaa' => array(
+            'class' => 'TestA',
+            'method' => 'aaa',
         ),
     );
 
@@ -42,18 +45,29 @@ class TaskWorker
         foreach ($this->funcsConfig as $funcName => $config) {
             $this->worker->addFunction($funcName, function(GearmanJob $job, &$config) {
                 $workload = $job->workload();
-                $data = json_decode($workload, true);
+                $ret = json_decode($workload, true);
+
+                if(isset($ret['timeline']) && !empty($ret['timeline']) && strtotime($ret['timeline'])){
+                    $t = strtotime($ret['timeline']);
+                    if(time() < $t){
+                        usleep(self::TASK_INTERVAL_USLEEP);
+                        Task::addDo($job->functionName(), $ret, $ret['type']);
+                        return;
+                    }
+                }
+
                 try {
                     call_user_func_array(
                         array(
                             $config['class'],
                             $config['method']
                         ),
-                        array($data)
+                        array($ret)
                     );
                 } catch (Exception $ex) {
                     // todo something
                 }
+
             }, $config);
         }
     }
