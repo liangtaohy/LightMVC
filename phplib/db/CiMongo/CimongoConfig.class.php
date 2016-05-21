@@ -19,6 +19,7 @@ class CimongoConfig
                 'dbname' => 'admin',
                 'query_safety' => TRUE,
                 'db_flag' => TRUE,
+                'replicaSet' => 'test',
             ],
         ],
     ];
