@@ -35,6 +35,7 @@ class Application
                 $e->getMessage()
             );
             MeLog::notice($log, $e->getCode(), Context::getInstance()->getNoticeLogs());
+            echo 'what do you want?';
             return false;
         }
         $end = Utils::microTime();

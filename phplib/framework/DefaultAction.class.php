@@ -23,8 +23,8 @@ class DefaultAction extends Action
      */
     public function execute($context, $action_params = array())
     {
-        header('HTTP/1.1 404 Not Found');
-        header('status: 404 Not Found');
+        header('HTTP/1.1 200 OK');
+        header('status: 200 OK');
 
         echo 'What do you want?';
         return true;

@@ -139,6 +139,14 @@ class Cimongo_base {
 	 */
 	private function connect(){
 		$options = array();
+
+		$config = CimongoConfig::$conf['mongo'][APP_NAME][CURRENT_TAG];
+
+		$replicaSet = isset($config['replicaSet']) ? trim($config['replicaSet']) : '';
+		if (!empty($replicaSet)) {
+			$options['replicaSet'] = $replicaSet;
+		}
+
         $class = 'MongoClient';
         if(!class_exists($class)){
 
