@@ -50,7 +50,10 @@ class TaskWorker
             $this->worker->addFunction($funcName, function(GearmanJob $job, &$config) {
                 $workload = $job->workload();
                 $ret = json_decode($workload, true);
-                var_dump($ret);
+
+                if ($ret['data']) {
+                    return;
+                }
 
                 if(isset($ret['timeline']) && !empty($ret['timeline']) && strtotime($ret['timeline'])){
                     $t = strtotime($ret['timeline']);
@@ -67,7 +70,7 @@ class TaskWorker
                             $config['class'],
                             $config['method']
                         ),
-                        array($ret)
+                        array($ret['data'])
                     );
                 } catch (Exception $ex) {
                     // todo something
