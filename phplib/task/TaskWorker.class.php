@@ -13,6 +13,11 @@ class TaskWorker
 
     const TASK_INTERVAL_USLEEP = 3000;
 
+    // 回调方法
+    const EVENT_FORWARD_CALLBACK = 100;
+    // 执行url
+    const EVENT_FORWARD_URL = 101;
+
     /**
      * 句柄
      * @var GearmanWorker
@@ -50,7 +55,10 @@ class TaskWorker
             $this->worker->addFunction($funcName, function(GearmanJob $job, &$config) {
                 $workload = $job->workload();
                 $ret = json_decode($workload, true);
-                var_dump($ret);
+
+                if (empty($ret)) {
+                    return false;
+                }
 
                 if(isset($ret['timeline']) && !empty($ret['timeline']) && strtotime($ret['timeline'])){
                     $t = strtotime($ret['timeline']);
@@ -62,15 +70,27 @@ class TaskWorker
                 }
 
                 try {
-                    call_user_func_array(
-                        array(
-                            $config['class'],
-                            $config['method']
-                        ),
-                        array($ret)
-                    );
+                    $_data = $ret['data'];
+                    switch ($ret['action']) {
+                        case self::EVENT_FORWARD_CALLBACK:
+                            call_user_func_array(
+                                array($config['class'],$config['method'],),
+                                array($_data)
+                            );
+                            break;
+
+                        case self::EVENT_FORWARD_URL:
+                            $this->event_url_request(
+                                $_data['url'],
+                                $_data['params'],
+                                $_data['method'],
+                                $_data['headers']
+                            );
+                            break;
+                    }
                 } catch (Exception $ex) {
                     // todo something
+                    MeLog::fatal($ex->getMessage() . '#' . $ex->getCode());
                 }
 
             }, $config);
@@ -91,6 +111,44 @@ class TaskWorker
                 echo '//todo:: log op error' . PHP_EOL;
             }
         }
+    }
+
+    /**
+     * event forward request
+     *
+     * @param $url
+     * @param array $params
+     * @param string $method
+     * @param array $headers
+     * @return mixed
+     * @throws Exception
+     * @throws TaskException
+     * @throws bdHttpException
+     */
+    protected function event_url_request($url, array $params = array(), $method='post', array $headers = array())
+    {
+        try {
+            switch ($method) {
+                case 'post':
+                case 'POST':
+                    $result = bdHttpRequest::post($url, $params, array(), $headers);
+                    break;
+                case 'get':
+                case 'GET':
+                    $result = bdHttpRequest::get($url, $params, array(), $headers);
+                    break;
+                default:
+                    throw new TaskException('未知请求方式: ' . $method, 800010);
+                    break;
+            }
+        } catch (bdHttpException $ex) {
+            MeLog::fatal($ex->getMessage() . '#' . $ex->getCode());
+            throw new TaskException($ex->getMessage(), $ex->getCode());
+        }
+        $return = $result->getBody();
+        MeLog::fatal($return);
+        $data = json_decode($return, true);
+        return $data;
     }
 
 }
