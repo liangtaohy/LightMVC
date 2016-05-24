@@ -167,6 +167,8 @@ define('XDPAPI_EC_NOT_OPEN_WALLET', 1401);
 define('XDPAPI_EC_BALANCE_NOT_ENOUGH', 1402);
 define('XDPAPI_EC_AUTOOPEN_WALLET_FAILED', 1403);
 
+define('XDPAPI_EC_DATA_NOT_EXSIT', 1500);
+
 /**
  * 流控
  */
@@ -303,6 +305,8 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_BALANCE_NOT_ENOUGH => 'Balance is not enough',
         XDPAPI_EC_AUTOOPEN_WALLET_FAILED => 'auto open wallet error: %s',
         XDPAPI_EC_FLOW_LIMIT    => 'flow limit: %s',
+
+        XDPAPI_EC_DATA_NOT_EXSIT => 'company info not exsit',
     );
 
     public static function errmsg($errcode)
