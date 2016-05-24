@@ -479,11 +479,17 @@ class LogStash
 
 			if(!empty($this->message)){
 				try{
-					$pipe = $this->redis->multi(Redis::PIPELINE);
+					//$pipe = $this->redis->multi(Redis::PIPELINE);
+					//foreach($this->message as $pack){
+					//	$pipe->lPush($this->config['type'],$pack);
+					//}
+					//$replies = $pipe->exec();
 					foreach($this->message as $pack){
-						$pipe->lPush($this->config['type'],json_encode($pack));
+						$ret = $this->redis->lPush($this->config['type'],$pack);
+						if (empty($ret)) {
+							MeLog::warning('push log into ' . $this->config['type'] . ' failed');
+						}
 					}
-					$replies = $pipe->exec();
 					$this->log('count memory > '.$sync_memory.' current:'.$current_usage.' or time > '.$sync_second.
 						' current: '.$time.'s ','sync');
 				}catch (Exception $e){
