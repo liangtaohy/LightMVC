@@ -89,6 +89,7 @@ define('XDPAPI_EC_PAY_ORDER_CLOSED', 307);
 define('XDPAPI_EC_PAY_ORDER_CANCEL', 308);
 define('XDPAPI_EC_PAY_BALANCE_NOT_ENOUGH', 309);
 define('XDPAPI_EC_PAY_GATEWAY_INVALID', 310);
+define('XDPAPI_EC_PAY_ORDER_ADD_FAILED', 311);
 
 /**
  * Bql errors
@@ -249,7 +250,8 @@ class XdpOpenAPIErrorDescs
         XDPAPI_EC_PAY_ORDER_INVALID => 'Order or amount format not match', 
         XDPAPI_EC_PAY_ORDER_NOT_EXISTS => 'Order not exist', 
         XDPAPI_EC_PAY_NOT_AUTHORIZED => 'App has not apply for the payment services', 
-        XDPAPI_EC_PAY_STOPPED => 'Payment service for this app has been stopped', 
+        XDPAPI_EC_PAY_STOPPED => 'Payment service for this app has been stopped',
+        XDPAPI_EC_PAY_ORDER_ADD_FAILED  => 'Add Order Failed: %s',
         
         XDPAPI_EC_BQL_TOO_MANY_ITEMS => 'Each bql API can not contain more than %d items', 
         XDPAPI_EC_BQL_TOO_MANY_SUBQUERY => 'Sub-query less than %d', 
