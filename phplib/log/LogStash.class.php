@@ -89,10 +89,9 @@ class LogStash
 					fseek($handle, $this->file_pointer);
 					while($line = trim(fgets($handle))){
                         $ret = call_user_func($this->config['parser'],$line);
-                        if ($ret === false) {
-                            continue;
-                        }
-                        $this->message[] = $ret;
+						if ($ret !== false) {
+							$this->message[] = $ret;
+						}
 						$this->inputAgent();
 					}
 					$this->file_pointer = ftell($handle);

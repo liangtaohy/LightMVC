@@ -63,6 +63,25 @@ class NewRedisProxy
     }
 
     /**
+     * 支持重连的redis
+     */
+    private function redis()
+    {
+        try {
+            $this->_cache = new Redis();
+            $this->_cache->pconnect($this->_host, $this->_port);
+            if (!empty($this->_pwd)) {
+                $this->_cache->auth($this->_pwd);
+            }
+            $this->_cache->ping();
+        } catch (RedisException $e) {
+            MeLog::fatal(sprintf(self::W_LOG, 'connect', SysErrors::E_CACHED_CONNECTION_FAILURE, $e->getMessage(), $this->_host, $this->_port, 'pwd:' . $this->pwd));
+            sleep(1);
+            $this->redis();
+        }
+    }
+
+    /**
      * 在当前机房尝试获取一个key对应的value
      * 注意：如果不使用序列化，非字符串的类型会自动转成string
      *
