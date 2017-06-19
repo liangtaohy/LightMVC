@@ -11,11 +11,13 @@ define('APP_NAME' , '{{APP_NAME}}');
 define('APP_PATH', dirname(__FILE__) . '/..');
 define('DEPLOY_ROOT', APP_PATH . '/../../../');
 define('APP_CONF_PATH', APP_PATH . '/../../conf/' . APP_NAME);
+define('QUERY_ENABLE', true);
+define('CURRENT_TAG', 'default');
 
 date_default_timezone_set('Asia/Shanghai');
 define('PROCESS_START_TIME', (int)($_SERVER['REQUEST_TIME_FLOAT'] * 1000));
 
-require_once(APP_PATH . '/../../../phplib/phplib_headers.php');
+require_once(APP_PATH . '/../../phplib/phplib_headers.php');
 require_once(APP_PATH . '/controller/uri_dispatch_rules.php');
 
 /** We will use autoloader instead of include path. */
