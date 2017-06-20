@@ -49,7 +49,7 @@ EOF;
 
         $filename = "./models/dao/Model" . $modelName . ".class.php";
         file_put_contents($filename, $content);
-        echo "make:model success, file path: " . $filename . "\n";
+        echo "make:model success, file path: \033[32m" . $filename . "\033[0m\n";
         exit(0);
     }
 
@@ -62,7 +62,7 @@ EOF;
 
     public function help()
     {
-        echo "php xman make:model {{modename}}\n";
+        echo "php xman make:model \033[32m{{modename}}\033[0m\n";
     }
 }
 
